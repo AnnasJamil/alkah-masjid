@@ -16,7 +16,7 @@ class JurnalKas extends Model
         'jenis_kas',
         'tanggal',
         'keterangan',
-        'nominal',
+        'nominal', 
     ];
 
 

@@ -62,8 +62,8 @@ class KontenWebController
         }
 
         if ($request->hasFile('gambar')) {
-            $path = $request->file('gambar')->store('konten_web', 'public');
-            $konten->gambar = 'storage/' . $path;
+            $gambar = $request->file('gambar')->store('konten_web', 'public');
+            $konten->gambar = $gambar;
         }
 
         $konten->status = $request->status;
@@ -115,7 +115,7 @@ class KontenWebController
         }
 
         $path = $request->file('gambar')->store('konten_web', 'public');
-        $konten->gambar = 'storage/' . $path;
+        $konten->gambar = '' . $path;
     }
 
     $konten->status = $request->status;

@@ -45,15 +45,13 @@ class StrukturPengurusController
 
         //foto pengurus disimpan di storage/app/public/foto_pengurus
         if ($request->hasFile('foto_pengurus')) {
-        $foto = $request->file('foto_pengurus');
-        $namaFoto = time() . '.' . $foto->getClientOriginalExtension();
-        $foto->storeAs('foto_pengurus', $namaFoto, 'public');
+        $foto = $request->file('foto_pengurus')->store('foto_pengurus', 'public');
 
         }
         $data = StrukturPengurus::create([
             'nama' => $request->nama,
             'jabatan' => $request->jabatan,
-            'foto_pengurus' => $namaFoto,
+            'foto_pengurus' => $foto,
             'periode' => $request->periode,
         ]);
 
@@ -82,10 +80,8 @@ class StrukturPengurusController
 
         //foto struktur pengurus disimpan di storage/app/public/foto_pengurus
         if ($request->hasFile('foto_pengurus')) {
-            $foto = $request->file('foto_pengurus');
-            $namaFoto = time().'.'.$foto->getClientOriginalExtension();
-            $foto->storeAs('foto_pengurus', $namaFoto, 'public');
-            $strukturPengurus->foto_pengurus = $namaFoto;
+            $foto = $request->file('foto_pengurus')->store('foto_pengurus', 'public');
+            $strukturPengurus->foto_pengurus = $foto;
         }
 
         $strukturPengurus->nama = $request->nama;

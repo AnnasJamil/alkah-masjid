@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Models\JurnalKas;
+use App\Models\LogAktivitas;
 
 class InfaqController
 {
@@ -49,13 +50,11 @@ class InfaqController
             'tanggal_infaq' => 'nullable',
         ]);
 
-        $buktiInfaq = $request->file('bukti_infaq');
-        $buktiInfaqName = time().'.'.$buktiInfaq->getClientOriginalExtension();
-        $buktiInfaq->storeAs('public/bukti_infaq', $buktiInfaqName);
+        $buktiInfaq = $request->file('bukti_infaq')->store('bukti_infaq', 'public');
 
         $infaq = Infaq::create([
             'nominal' => $request->nominal,
-            'bukti_infaq' => $buktiInfaqName,
+            'bukti_infaq' => $buktiInfaq,
             'status' => 'Menunggu Diterima',
             'tanggal_infaq' => now(),
         ]);
@@ -90,7 +89,7 @@ class InfaqController
         ], 400);
     }
 
-    DB::transaction(function () use ($infaq) {
+    DB::transaction(function () use ($infaq, $request) {
 
         // 🔥 update status
         $infaq->update([
@@ -103,8 +102,15 @@ class InfaqController
             'infaq_id' => $infaq->id,
             'jenis_kas' => 'Masuk',
             'tanggal' => now(),
-            'keterangan' => 'Infaq masuk ID #' . $infaq->id,
+            'keterangan' => 'Infaq Masuk Sebesar ' . $infaq->nominal,
             'nominal' => $infaq->nominal,
+        ]);
+
+        // 🔥 log aktivitas
+        LogAktivitas::create([
+            'user_id' => $request->user()->id, // pastikan user sudah login
+            'aktivitas' => 'Menerima Infaq sebesar ' . $infaq->nominal,
+            'waktu' => now(),
         ]);
 
     });

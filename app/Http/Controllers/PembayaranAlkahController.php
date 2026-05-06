@@ -8,6 +8,7 @@ use App\Models\TransaksiAlkah;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Models\JurnalKas;
+use App\Models\Alkah;
 
 class PembayaranAlkahController
 {
@@ -86,7 +87,7 @@ class PembayaranAlkahController
             'infaq_id' => null,
             'jenis_kas' => 'Masuk',
             'tanggal' => now(),
-            'keterangan' => 'Pembayaran Alkah untuk transaksi alkah id: ' . $transaksiAlkah->id,
+            'keterangan' => 'Pembayaran Alkah Dengan Kode ' . $alkah->kode_alkah,
             'nominal' => $pembayaranAlkah->total_bayar,
         ]);
         return response()->json([

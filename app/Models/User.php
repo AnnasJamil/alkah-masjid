@@ -38,4 +38,14 @@ class User extends Authenticatable
         'password',
     ];
 
+    public function kontenWebs()
+    {
+        return $this->hasMany(KontenWeb::class);
+    }
+
+    public function logAktivitas()
+    {
+        return $this->hasMany(LogAktivitas::class);
+    }
+
 }
