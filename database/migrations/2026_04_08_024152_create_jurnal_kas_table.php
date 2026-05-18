@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('jurnal_kas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('kategori_kas_id')->constrained('kategori_kas')->onDelete('cascade');
             $table->foreignId('pembayaran_alkah_id')->nullable()->constrained('pembayaran_alkahs')->onDelete('cascade');
             $table->foreignId('infaq_id')->nullable()->constrained('infaqs')->onDelete('cascade');
             $table->enum('jenis_kas', ['Masuk', 'Keluar']);
