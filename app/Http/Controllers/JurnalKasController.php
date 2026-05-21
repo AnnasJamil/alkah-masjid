@@ -3,25 +3,24 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\KategoriKas;
 use App\Models\JurnalKas;
 use App\Models\LogAktivitas;
 
 class JurnalKasController
 {
-    //crud jurnal kas api json
+    //crud jurnal kas api json tanpa kategori kas
     public function index()
     {
         return response()->json([
             'success' => true,
             'message' => 'Menampilkan semua jurnal kas',
-            'data' => JurnalKas::with('kategoriKas')->get()
+            'data' => JurnalKas::all()
         ], 200);
     }
 
     public function show($id)
     {
-        $jurnalKas = JurnalKas::with('kategoriKas')->find($id);
+        $jurnalKas = JurnalKas::find($id);
         if ($jurnalKas) {
             return response()->json([
                 'success' => true,
@@ -40,7 +39,6 @@ class JurnalKasController
     public function store(Request $request)
     {
         $request->validate([
-            'kategori_kas_id' => 'required|exists:kategori_kas,id',
             'jenis_kas' => 'required|in:Masuk,Keluar',
             'tanggal' => 'required|date',
             'keterangan' => 'nullable|string',
@@ -62,8 +60,4 @@ class JurnalKasController
             'data' => $jurnalKas
         ], 201);
     }
-
-    //laporan jurnal kas berdasarkan mingguan dari jumat ke jumat, bulanan, dan tahunan
-    //jika mingguan maka tampilkan jurnal kas dari jumat ke jumat, jika bulanan maka tampilkan jurnal kas dari tanggal 1 sampai tanggal terakhir di bulan tersebut, jika tahunan maka tampilkan jurnal kas dari tanggal 1 januari sampai tanggal 31 desember di tahun tersebut
-
 }

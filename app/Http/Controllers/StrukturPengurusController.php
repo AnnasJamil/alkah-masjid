@@ -45,13 +45,13 @@ class StrukturPengurusController
 
         //foto pengurus disimpan di storage/app/public/foto_pengurus
         if ($request->hasFile('foto_pengurus')) {
-        $foto = $request->file('foto_pengurus')->store('foto_pengurus', 'public');
+        $foto_pengurus = $request->file('foto_pengurus')->store('foto_pengurus', 'public');
 
         }
         $data = StrukturPengurus::create([
             'nama' => $request->nama,
             'jabatan' => $request->jabatan,
-            'foto_pengurus' => $foto,
+            'foto_pengurus' => $foto_pengurus ?? null, // Simpan nama file jika ada, atau null jika tidak ada
             'periode' => $request->periode,
         ]);
 

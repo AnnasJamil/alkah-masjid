@@ -14,7 +14,7 @@ class RoleMiddleware
         if (!$request->user()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized'
+                'message' => 'Token tidak valid'
             ], 401);
         }
 

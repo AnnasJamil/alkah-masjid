@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\KontenWeb;
+use Illuminate\Support\Facades\Storage;
+use App\Models\KategoriKonten;
+use App\Models\User;
+use App\Models\LogAktivitas;
 
 class KontenWebController
 {
@@ -93,7 +97,7 @@ class KontenWebController
         'judul' => 'required|string|max:255',
         'isi' => 'required|string',
         'tanggal_publish' => 'nullable|datetime',
-        'gambar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        'gambar' => 'required|image|mimes:jpeg,png,jpg|max:2048',
         'status' => 'required|in:draft,published',
     ]);
 
@@ -110,12 +114,12 @@ class KontenWebController
 
     // update gambar (hapus lama)
     if ($request->hasFile('gambar')) {
-        if ($konten->gambar && file_exists(public_path($konten->gambar))) {
-            unlink(public_path($konten->gambar));
+        // hapus gambar lama jika ada
+        if ($konten->gambar) {
+            Storage::disk('public')->delete($konten->gambar);
         }
-
-        $path = $request->file('gambar')->store('konten_web', 'public');
-        $konten->gambar = '' . $path;
+        $gambar = $request->file('gambar')->store('konten_web', 'public');
+        $konten->gambar = $gambar;
     }
 
     $konten->status = $request->status;
