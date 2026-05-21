@@ -108,7 +108,7 @@ class KontenWebController
         $konten->tanggal_publish = $request->tanggal_publish ?? $konten->tanggal_publish;
     }
 
-    // 🔥 update gambar (hapus lama)
+    // update gambar (hapus lama)
     if ($request->hasFile('gambar')) {
         if ($konten->gambar && file_exists(public_path($konten->gambar))) {
             unlink(public_path($konten->gambar));
