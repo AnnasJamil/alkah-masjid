@@ -54,6 +54,9 @@ Route::post('/verifikasi-pembayaran/{id}', [PembayaranAlkahController::class, 'v
 Route::get('/jurnal-kas', [JurnalKasController::class, 'index']);
 Route::get('/jurnal-kas/{id}', [JurnalKasController::class, 'show']);
 Route::post('/jurnal-kas', [JurnalKasController::class, 'store'])->middleware('auth:sanctum');
+Route::put('/jurnal-kas/{id}', [JurnalKasController::class, 'update'])->middleware('auth:sanctum');
+Route::delete('/jurnal-kas/{id}', [JurnalKasController::class, 'destroy'])->middleware('auth:sanctum');
+Route::get('/jurnal-minggu', [JurnalKasController::class, 'LaporanMingguan']); //untuk menampilkan jurnal kas minggu ini saja
 
 //crud infaq api json
 Route::get('/infaq', [InfaqController::class, 'index']);

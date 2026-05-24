@@ -6,9 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class JurnalKas extends Model
 {
-    //
-    public $timestamps = false;
-
     protected $fillable = [
         'pembayaran_alkah_id',
         'infaq_id',
