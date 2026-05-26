@@ -123,41 +123,24 @@ class JurnalKasController
     //laporan kas mingguan dihari jumat sampai jumat
     public function LaporanMingguan()
     {
-    // =====================================
     // TANGGAL SEKARANG
-    // =====================================
-
     $hariIni = Carbon::now();
 
-    // =====================================
     // CARI JUMAT MINGGU INI
-    // =====================================
-
     $jumatIni = Carbon::now()->next(Carbon::FRIDAY);
 
     // kalau hari ini jumat
     if ($hariIni->isFriday()) {
         $jumatIni = $hariIni;
     }
-
-    // =====================================
     // JUMAT LALU
-    // =====================================
-
     $jumatLalu = Carbon::parse($jumatIni)->subWeek();
 
-    // =====================================
     // JUMAT 2 MINGGU LALU
-    // =====================================
-
     $jumatDuaMingguLalu = Carbon::parse($jumatLalu)->subWeek();
 
-    // =====================================
     // SALDO JUMAT LALU
     // hanya hitung 1 minggu sebelumnya
-    // 15 Mei → 22 Mei
-    // =====================================
-
     $totalMasukSebelumnya = JurnalKas::where('jenis_kas', 'Masuk')
         ->whereBetween('tanggal', [$jumatDuaMingguLalu, $jumatLalu])
         ->sum('nominal');
@@ -169,50 +152,30 @@ class JurnalKasController
     $saldoJumatLalu =
         $totalMasukSebelumnya - $totalKeluarSebelumnya;
 
-    // =====================================
     // PEMASUKAN MINGGU INI
-    // 22 Mei → 29 Mei
-    // =====================================
-
     $pemasukan = JurnalKas::where('jenis_kas', 'Masuk')
         ->whereBetween('tanggal', [$jumatLalu, $jumatIni])
         ->sum('nominal');
 
-    // =====================================
     // PENGELUARAN MINGGU INI
-    // 22 Mei → 29 Mei
-    // =====================================
-
     $pengeluaran = JurnalKas::where('jenis_kas', 'Keluar')
         ->whereBetween('tanggal', [$jumatLalu, $jumatIni])
         ->sum('nominal');
 
-    // =====================================
     // SALDO SEKARANG
-    // =====================================
-
     $saldoSekarang = + $pemasukan - $pengeluaran;
 
-    // =====================================
     // DETAIL PEMASUKAN
-    // =====================================
-
     $detailPemasukan = JurnalKas::where('jenis_kas', 'Masuk')
         ->whereBetween('tanggal', [$jumatLalu, $jumatIni])
         ->get();
 
-    // =====================================
     // DETAIL PENGELUARAN
-    // =====================================
-
     $detailPengeluaran = JurnalKas::where('jenis_kas', 'Keluar')
         ->whereBetween('tanggal', [$jumatLalu, $jumatIni])
         ->get();
 
-    // =====================================
     // RESPONSE JSON
-    // =====================================
-
     return response()->json([
         'success' => true,
 
@@ -229,17 +192,11 @@ class JurnalKasController
         ],
 
         'laporan' => [
-
             'saldo_jumat_lalu' => $saldoJumatLalu,
-
             'penerimaan_sepekan' => $pemasukan,
-
             'pengeluaran_sepekan' => $pengeluaran,
-
             'saldo_saat_ini' => $saldoSekarang,
-
             'detail_pemasukan' => $detailPemasukan,
-
             'detail_pengeluaran' => $detailPengeluaran,
         ]
     ]);

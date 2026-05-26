@@ -21,4 +21,10 @@ public function blokAlkah() {
     return $this->belongsTo(BlokAlkah::class);
 }
 
+public function dataAlmarhums()
+{
+    return $this->hasOne(DataAlmarhum::class);
+
+}
+
 }

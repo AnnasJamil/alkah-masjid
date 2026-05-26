@@ -16,15 +16,8 @@ return new class extends Migration
             $table->foreignId('alkah_id')->constrained('alkahs')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->char('kode_transaksi', 10)->unique();
-            $table->string('ahli_waris');
-            //no hp
-            $table->string('no_hp');
-            $table->string('foto_ktp');
-            //tanggal pemesanan
             $table->date('tanggal_pemesanan');
-            //total
             $table->decimal('total', 10, 2);
-            //status enum: pending, lunas, batal
             $table->enum('status', ['Pending', 'Lunas', 'Batal'])->default('Pending');
             $table->timestamps();
         });

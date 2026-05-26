@@ -59,6 +59,7 @@ class PembayaranAlkahController
 
         $buktiPath = $request->file('bukti_pembayaran')->store('bukti_bayar', 'public');
         $pembayaranAlkah->update(['bukti_pembayaran' => $buktiPath]);
+        $pembayaranAlkah->update(['status' => 'Menunggu Verifikasi']);
         return response()->json([
             'success' => true,
             'message' => 'Bukti pembayaran berhasil diunggah',

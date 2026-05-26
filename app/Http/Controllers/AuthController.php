@@ -4,6 +4,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+
 
  class AuthController
 {
@@ -40,7 +45,7 @@ use Illuminate\Support\Facades\Hash;
     $user = User::where('email', $request->email)->first();
 
     if (!$user || !Hash::check($request->password, $user->password)) {
-        return response()->json(['message' => 'Login gagal'], 401);
+        return response()->json(['message' => 'Login gagal, email atau password salah'], 401);
     }
 
     $token = $user->createToken('auth_token')->plainTextToken;
@@ -58,6 +63,65 @@ use Illuminate\Support\Facades\Hash;
     $request->user()->currentAccessToken()->delete();
     return response()->json(['message' => 'Logout berhasil']);
 
-}
+ }
 
+ //rest password dengan email otp
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+        ]);
+        $user = User::where('email', $request->email)->first();
+        //generate kode OTP ke email user
+        $otp = rand(100000, 999999);
+        //jika genereate OTP, maka hapus OTP yang lama untuk email tersebut
+        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+        DB::table('password_reset_tokens')->insert([
+            'email' => $request->email,
+            'token' => $otp,
+            'created_at' => now(),
+        ]);
+
+        //simpan ke log
+        Log::info('OTP reset password, [email: ' . $request->email . ', otp: ' . $otp . ']');
+        return response()->json([
+            'success' => true,
+            'message' => 'Kode OTP telah dikirim ke email Anda',
+            'otp' => $otp, //untuk testing, seharusnya tidak dikirim ke client
+        ], 200);
+     }
+
+    //update password dengan otp
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+            'token' => 'required|digits:6',
+            'password' => 'required|min:8|confirmed',
+        ]);
+
+        $record = DB::table('password_reset_tokens')
+            ->where('email', $request->email)
+            ->where('token', $request->token)
+            ->first();
+        if (!$record) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token tidak valid',
+            ], 400);
+        }
+        //update password
+        $user = User::where('email', $request->email)->first();
+        $user->password = bcrypt($request->password);
+        $user->save();
+
+        //hapus token setelah berhasil reset password
+        DB::table('password_reset_tokens')->where('email', $request->email)
+        ->where('token', $request->token)->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Password berhasil diubah',
+        ], 200);
+    }
 }

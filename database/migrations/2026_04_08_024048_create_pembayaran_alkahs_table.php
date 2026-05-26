@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('transaksi_alkah_id')->constrained('transaksi_alkahs')->onDelete('cascade');
             $table->string('bukti_pembayaran')->nullable();
             $table->decimal('total_bayar', 10, 2);
-            $table->enum('status', ['Menunggu Pembayaran', 'Diverifikasi', 'Ditolak'])->default('Menunggu Pembayaran');
+            $table->enum('status', ['Menunggu Pembayaran', 'Menunggu Verifikasi', 'Diverifikasi', 'Ditolak'])->default('Menunggu Pembayaran');
             $table->timestamps();
         });
     }
