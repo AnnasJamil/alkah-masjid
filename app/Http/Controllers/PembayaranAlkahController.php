@@ -80,7 +80,7 @@ class PembayaranAlkahController
         $transaksiAlkah = TransaksiAlkah::find($pembayaranAlkah->transaksi_alkah_id);
         $transaksiAlkah->update(['status' => 'Lunas']);
         $alkah = $transaksiAlkah->alkah;
-        $alkah->update(['status' => 'Terisi']);
+        $alkah->update(['status' => 'Dipesan']);
 
         JurnalKas::create([
             'kategori_kas_id' => 1, //kategori kas kas alkah

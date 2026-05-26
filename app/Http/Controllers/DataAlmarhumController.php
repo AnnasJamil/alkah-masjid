@@ -48,6 +48,8 @@ class DataAlmarhumController
         ]);
 
         $dataAlmarhum = DataAlmarhum::create($request->all());
+        //update status alkah menjadi terisi
+        $this->cekStatusAlkah($request->alkah_id);
         return response()->json([
             'success' => true,
             'message' => 'Data almarhum berhasil disimpan',
@@ -69,6 +71,7 @@ class DataAlmarhumController
             ]);
 
             $dataAlmarhum->update($request->all());
+            $this->cekStatusAlkah($request->alkah_id);
             return response()->json([
                 'success' => true,
                 'message' => 'Data almarhum berhasil diubah',
@@ -85,8 +88,10 @@ class DataAlmarhumController
         public function destroy($id)
         {
             $dataAlmarhum = DataAlmarhum::find($id);
-            if ($dataAlmarhum) {
+            if ($dataAlmarhum){
                 $dataAlmarhum->delete();
+                    //update status alkah menjadi tersedia
+                    $this->cekStatusAlkah($dataAlmarhum->alkah_id);
                 return response()->json([
                     'success' => true,
                     'message' => 'Data almarhum berhasil dihapus',
@@ -98,5 +103,18 @@ class DataAlmarhumController
                 ], 404);
             }
         }
+    //jika data almarhum ditambah maka alkah terisi, jika data almarhum dihapus maka alkah tersedia
+    private function cekStatusAlkah($alkahId)
+     {
+         $alkah = Alkah::find($alkahId);
+         if ($alkah) {
+             if (DataAlmarhum::where('alkah_id', $alkahId)->exists()) {
+                 $alkah->status = 'Terisi';
+             } else {
+                 $alkah->status = 'Tersedia';
+             }
+             $alkah->save();
+         }
+     }
 }
 

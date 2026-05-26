@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Alkah;
 use Illuminate\Support\Facades\Validator;
+use App\Models\BlokAlkah;
+use App\Models\DataAlmarhum;
 
 
 class AlkahController
@@ -46,6 +48,8 @@ class AlkahController
             'status' => 'nullable|in:Tersedia,Terisi,Dipesan',
         ]);
         $alkah = Alkah::create($request->all());
+            // cek status blok setelah tambah alkah
+            $this->cekStatusBlok($request->blok_alkah_id);
         return response()->json([
             'success' => true,
             'message' => 'Alkah berhasil ditambahkan',
@@ -64,6 +68,8 @@ class AlkahController
                 'status' => 'nullable|in:Tersedia,Terisi,Dipesan',
             ]);
             $alkah->update($request->all());
+            // cek status blok setelah update alkah
+            $this->cekStatusBlok($request->blok_alkah_id);
             return response()->json([
                 'success' => true,
                 'message' => 'Alkah berhasil diupdate',
@@ -92,6 +98,35 @@ class AlkahController
                 'message' => 'Alkah tidak ditemukan',
             ], 404);
         }
+    }
+
+    // cek status blok otomatis
+    private function cekStatusBlok($blokId)
+    {
+    // cek apakah masih ada alkah tersedia
+    $masihAdaTersedia = Alkah::where(
+        'blok_alkah_id',
+        $blokId
+    )
+    ->where('status', 'Tersedia')
+    ->exists();
+
+    // jika masih ada yang tersedia
+    if ($masihAdaTersedia) {
+
+        BlokAlkah::where('id', $blokId)
+            ->update([
+                'status' => 'Tersedia'
+            ]);
+
+    } else {
+
+        // semua alkah penuh
+        BlokAlkah::where('id', $blokId)
+            ->update([
+                'status' => 'Penuh'
+            ]);
+    }
     }
 
 }
