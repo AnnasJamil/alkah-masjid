@@ -15,6 +15,7 @@ use App\Http\Controllers\KontenWebController;
 use App\Http\Controllers\LogAktivitasController;
 use App\Http\Controllers\ProfiljamaahController;
 use App\Http\Controllers\DataAlmarhumController;
+use App\Http\Controllers\KajianRutinController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -47,11 +48,14 @@ Route::delete('/alkah/{id}', [AlkahController::class, 'destroy'])->middleware('a
 Route::get('/transaksi', [TransaksiAlkahController::class, 'index']);
 Route::get('/transaksi/{id}', [TransaksiAlkahController::class, 'show']);
 Route::post('/transaksi', [TransaksiAlkahController::class, 'store'])->middleware('auth:sanctum', 'role:Jamaah');
+Route::put('/transaksi/{id}/terima', [TransaksiAlkahController::class, 'terimaPengajuan'])->middleware('auth:sanctum');
+Route::put('/transaksi/{id}/tolak', [TransaksiAlkahController::class, 'tolakPengajuan'])->middleware('auth:sanctum');
 
 //crud pembayaran alkah api json
 Route::get('/pembayaran', [PembayaranAlkahController::class, 'index']);
 Route::get('/pembayaran/{id}', [PembayaranAlkahController::class, 'show']);
 Route::post('/upload-bukti/{id}', [PembayaranAlkahController::class, 'uploadBukti'])->middleware('auth:sanctum');
+Route::post('/perbaiki-bukti/{id}', [PembayaranAlkahController::class, 'perbaikiBukti'])->middleware('auth:sanctum');
 Route::post('/verifikasi-pembayaran/{id}', [PembayaranAlkahController::class, 'verifikasiPembayaran'])->middleware('auth:sanctum');
 
 //crud jurnal kas api json
@@ -103,6 +107,13 @@ Route::get('/almarhum/{id}', [DataAlmarhumController::class, 'show']);
 Route::post('/almarhum', [DataAlmarhumController::class, 'store']);
 Route::put('/almarhum/{id}', [DataAlmarhumController::class, 'update']);
 Route::delete('/almarhum/{id}', [DataAlmarhumController::class, 'destroy']);
+
+//crud kajian rutin api json
+Route::get('/kajian', [KajianRutinController::class, 'index']);
+Route::get('/kajian/{id}', [KajianRutinController::class, 'show']);
+Route::post('/kajian', [KajianRutinController::class, 'store']);
+Route::put('/kajian/{id}', [KajianRutinController::class, 'update']);
+Route::delete('/kajian/{id}', [KajianRutinController::class, 'destroy']);
 
 //log aktivitas api json
 Route::get('/log', [LogAktivitasController::class, 'index']);

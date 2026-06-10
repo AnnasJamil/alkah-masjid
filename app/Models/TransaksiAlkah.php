@@ -17,6 +17,7 @@ class TransaksiAlkah extends Model
         'kode_transaksi',
         'tanggal_pemesanan',
         'total',
+        'alasan_penolakan',
         'status',
 
     ];

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Models\JurnalKas;
 use App\Models\Alkah;
+use App\Models\BlokAlkah;
 
 class PembayaranAlkahController
 {
@@ -40,61 +41,145 @@ class PembayaranAlkahController
     }
 
     //api kirim bukti pembayaran alkah dari transaksi alkah api json
-    public function uploadBukti(Request $request, $id)
+  public function uploadBukti(Request $request, $id)
     {
-        $pembayaranAlkah = PembayaranAlkah::find($id);
-        if (!$pembayaranAlkah) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Pembayaran Alkah tidak ditemukan',
-            ], 404);
-        }
-        $request->validate([
-            'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-        ]);
-        // Hapus bukti pembayaran lama jika ada
-        if ($pembayaranAlkah->bukti_pembayaran) {
-            Storage::disk('public')->delete($pembayaranAlkah->bukti_pembayaran);
-        }
+    $pembayaran = PembayaranAlkah::find($id);
 
-        $buktiPath = $request->file('bukti_pembayaran')->store('bukti_bayar', 'public');
-        $pembayaranAlkah->update(['bukti_pembayaran' => $buktiPath]);
-        $pembayaranAlkah->update(['status' => 'Menunggu Verifikasi']);
+    if (!$pembayaran) {
         return response()->json([
-            'success' => true,
-            'message' => 'Bukti pembayaran berhasil diunggah',
-            'data' => $pembayaranAlkah
-        ], 200);
+            'success' => false,
+            'message' => 'Pembayaran tidak ditemukan'
+        ], 404);
+    }
+
+    $request->validate([
+        'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+    ]);
+
+    if ($pembayaran->bukti_pembayaran) {
+        Storage::disk('public')
+            ->delete($pembayaran->bukti_pembayaran);
+    }
+
+    $path = $request->file('bukti_pembayaran')
+        ->store('bukti_bayar', 'public');
+
+    $pembayaran->update([
+        'bukti_pembayaran' => $path,
+        'status' => 'Menunggu Verifikasi',
+        'catatan' => null
+    ]);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Bukti pembayaran berhasil diupload',
+        'data' => $pembayaran
+    ]);
+    }
+
+    //perbaiki butki
+    public function perbaikiBukti(Request $request, $id)
+    {
+    $request->validate([
+        'catatan' => 'required|string'
+    ]);
+
+    $pembayaran = PembayaranAlkah::find($id);
+
+    if (!$pembayaran) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Pembayaran tidak ditemukan'
+        ], 404);
+    }
+
+    $pembayaran->update([
+        'status' => 'Menunggu Pembayaran',
+        'catatan' => $request->catatan
+    ]);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Bukti pembayaran perlu diperbaiki',
+        'data' => $pembayaran
+    ]);
     }
 
     public function verifikasiPembayaran($id)
     {
-        $pembayaranAlkah = PembayaranAlkah::find($id);
-        if (!$pembayaranAlkah) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Pembayaran Alkah tidak ditemukan',
-            ], 404);
-        }
-        $pembayaranAlkah->update(['status' => 'Diverifikasi']);
-        $transaksiAlkah = TransaksiAlkah::find($pembayaranAlkah->transaksi_alkah_id);
-        $transaksiAlkah->update(['status' => 'Lunas']);
-        $alkah = $transaksiAlkah->alkah;
-        $alkah->update(['status' => 'Dipesan']);
+    $pembayaran = PembayaranAlkah::find($id);
 
-        JurnalKas::create([
-            'kategori_kas_id' => 1, //kategori kas kas alkah
-            'pembayaran_alkah_id' => $pembayaranAlkah->id,
-            'infaq_id' => null,
-            'jenis_kas' => 'Masuk',
-            'tanggal' => now(),
-            'keterangan' => 'Pembayaran Alkah Dengan Kode ' . $alkah->kode_alkah,
-            'nominal' => $pembayaranAlkah->total_bayar,
-        ]);
+    if (!$pembayaran) {
         return response()->json([
-            'success' => true,
-            'message' => 'Pembayaran berhasil diverifikasi',
-            'data' => $pembayaranAlkah
-        ], 200);
+            'success' => false,
+            'message' => 'Pembayaran tidak ditemukan'
+        ], 404);
     }
+
+    $pembayaran->update([
+        'status' => 'Diverifikasi',
+        'catatan' => null
+    ]);
+
+    $transaksi = TransaksiAlkah::find(
+        $pembayaran->transaksi_alkah_id
+    );
+
+    $transaksi->update([
+        'status' => 'Lunas'
+    ]);
+
+    $alkah = $transaksi->alkah;
+
+    $alkah->update([
+        'status' => 'Dipesan'
+    ]);
+
+    $this->cekStatusBlok(
+        $alkah->blok_alkah_id
+    );
+
+    JurnalKas::create([
+        'pembayaran_alkah_id' => $pembayaran->id,
+        'infaq_id' => null,
+        'jenis_kas' => 'Masuk',
+        'tanggal' => now(),
+        'keterangan' =>
+            'Pembayaran Alkah Dengan Kode ' .
+            $alkah->kode_alkah,
+        'nominal' => $pembayaran->total_bayar,
+    ]);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Pembayaran berhasil diverifikasi',
+        'data' => $pembayaran
+    ]);
+    }
+
+    //cek status
+    private function cekStatusBlok($blokId)
+{
+    $masihAdaTersedia = Alkah::where(
+        'blok_alkah_id',
+        $blokId
+    )
+    ->where('status', 'Tersedia')
+    ->exists();
+
+    if ($masihAdaTersedia) {
+
+        BlokAlkah::where('id', $blokId)
+            ->update([
+                'status' => 'Tersedia'
+            ]);
+
+    } else {
+
+        BlokAlkah::where('id', $blokId)
+            ->update([
+                'status' => 'Penuh'
+            ]);
+    }
+}
 }

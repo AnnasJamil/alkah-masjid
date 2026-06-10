@@ -18,7 +18,8 @@ return new class extends Migration
             $table->char('kode_transaksi', 10)->unique();
             $table->date('tanggal_pemesanan');
             $table->decimal('total', 10, 2);
-            $table->enum('status', ['Pending', 'Lunas', 'Batal'])->default('Pending');
+            $table->text('alasan_penolakan')->nullable();
+            $table->enum('status', ['Menunggu Verifikasi', 'Menunggu Pembayaran', 'Ditolak', 'Lunas'])->default('Menunggu Verifikasi');
             $table->timestamps();
         });
     }

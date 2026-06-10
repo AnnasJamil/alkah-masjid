@@ -110,4 +110,26 @@ class ProfilJamaahController
             'data' => $profil
         ]);
     }
+
+    //profil jamaah by user id
+    public function showByUser($userId)
+{
+    $profil = ProfilJamaah::where(
+        'user_id',
+        $userId
+    )->first();
+
+    if (!$profil) {
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Profil tidak ditemukan'
+        ], 404);
+    }
+
+    return response()->json([
+        'success' => true,
+        'data' => $profil
+    ]);
+}
 }

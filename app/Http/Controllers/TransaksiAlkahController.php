@@ -12,10 +12,6 @@ use Illuminate\Support\Facades\DB;
 
 class TransaksiAlkahController
 {
-    // =====================================
-    // LIST TRANSAKSI
-    // =====================================
-
     public function index()
     {
         return response()->json([
@@ -23,7 +19,7 @@ class TransaksiAlkahController
             'message' => 'List Transaksi Alkah',
 
             'data' => TransaksiAlkah::with(
-                'user',
+                'user.profilJamaah',
                 'alkah',
                 'pembayaranAlkah'
             )->get()
@@ -31,14 +27,10 @@ class TransaksiAlkahController
         ], 200);
     }
 
-    // =====================================
-    // DETAIL TRANSAKSI
-    // =====================================
-
     public function show($id)
     {
         $transaksiAlkah = TransaksiAlkah::with(
-            'user',
+            'user.profilJamaah',
             'alkah',
             'pembayaranAlkah'
         )->find($id);
@@ -58,133 +50,187 @@ class TransaksiAlkahController
         ], 200);
     }
 
-    // =====================================
-    // TRANSAKSI ALKAH
-    // =====================================
-
-    public function store(Request $request)
+public function store(Request $request)
     {
-        // =====================================
-        // VALIDASI
-        // =====================================
+    // ==========================
+    // VALIDASI
+    // ==========================
 
-        $validator = Validator::make($request->all(), [
+    $validator = Validator::make($request->all(), [
+        'alkah_id' => 'required|exists:alkahs,id',
+    ]);
 
-            'alkah_id' => 'required|exists:alkahs,id',
-
-        ]);
-
-        if ($validator->fails()) {
-
-            return response()->json([
-
-                'success' => false,
-
-                'message' => $validator->errors()
-
-            ], 422);
-        }
-
-        // =====================================
-        // CEK PROFIL USER
-        // =====================================
-
-        $profil = ProfilJamaah::where(
-            'user_id',
-            auth()->id()
-        )->first();
-
-        if (!$profil) {
-
-            return response()->json([
-
-                'success' => false,
-
-                'message' =>
-                'Lengkapi profil terlebih dahulu sebelum membeli alkah'
-
-            ], 400);
-        }
-
-        // =====================================
-        // TRANSACTION DATABASE
-        // =====================================
-
-        DB::transaction(function () use ($request, &$transaksi) {
-
-            // ambil data alkah
-            $alkah = Alkah::findOrFail($request->alkah_id);
-
-            // =====================================
-            // CEK STATUS ALKAH
-            // =====================================
-
-            if ($alkah->status == 'Terisi') {
-
-                return response()->json([
-
-                    'success' => false,
-
-                    'message' => 'Alkah sudah terisi'
-
-                ], 400);
-            }
-
-            // =====================================
-            // BUAT TRANSAKSI
-            // =====================================
-
-            $transaksi = TransaksiAlkah::create([
-
-                'kode_transaksi' =>
-                'TRX-' .
-                str_pad(
-                    TransaksiAlkah::count() + 1,
-                    4,
-                    '0',
-                    STR_PAD_LEFT
-                ),
-
-                'user_id' => auth()->id(),
-
-                'alkah_id' => $alkah->id,
-
-                'tanggal_pemesanan' => now(),
-
-                'total' => $alkah->harga,
-
-                'status' => 'Pending',
-            ]);
-
-            // =====================================
-            // BUAT PEMBAYARAN
-            // =====================================
-
-            PembayaranAlkah::create([
-
-                'transaksi_alkah_id' => $transaksi->id,
-
-                'total_bayar' => $alkah->harga,
-
-                'status' => 'Menunggu Pembayaran',
-
-                'bukti_pembayaran' => null,
-            ]);
-        });
-
-        // =====================================
-        // RESPONSE
-        // =====================================
-
+    if ($validator->fails()) {
         return response()->json([
-
-            'success' => true,
-
-            'message' =>
-            'Transaksi dan pembayaran berhasil dibuat',
-
-            'data' => $transaksi
-
-        ], 201);
+            'success' => false,
+            'message' => $validator->errors()
+        ], 422);
     }
+
+    // ==========================
+    // CEK PROFIL JAMAAH
+    // ==========================
+
+    $profil = ProfilJamaah::where(
+        'user_id',
+        auth()->id()
+    )->first();
+
+    if (!$profil) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Lengkapi profil terlebih dahulu sebelum membeli alkah'
+        ], 400);
+    }
+
+    // ==========================
+    // CEK ALKAH
+    // ==========================
+
+    $alkah = Alkah::findOrFail(
+        $request->alkah_id
+    );
+
+    if ($alkah->status != 'Tersedia') {
+        return response()->json([
+            'success' => false,
+            'message' => 'Alkah tidak tersedia'
+        ], 400);
+    }
+
+    // ==========================
+    // CEK PENGAJUAN AKTIF USER
+    // ==========================
+
+    $cekPengajuanAktif = TransaksiAlkah::where(
+        'user_id',
+        auth()->id()
+    )
+    ->whereIn('status', [
+        'Menunggu Verifikasi',
+        'Menunggu Pembayaran'
+    ])
+    ->exists();
+
+    if ($cekPengajuanAktif) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Anda masih memiliki pengajuan alkah yang aktif'
+        ], 400);
+    }
+
+    // ==========================
+    // CEK DUPLIKAT ALKAH
+    // ==========================
+
+    $cekDuplikat = TransaksiAlkah::where(
+        'user_id',
+        auth()->id()
+    )
+    ->where(
+        'alkah_id',
+        $request->alkah_id
+    )
+    ->exists();
+
+    if ($cekDuplikat) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Anda sudah pernah mengajukan alkah ini'
+        ], 400);
+    }
+
+    // ==========================
+    // BUAT TRANSAKSI
+    // ==========================
+
+    $transaksi = TransaksiAlkah::create([
+        'kode_transaksi' =>
+            'TRX-' .
+            str_pad(
+                TransaksiAlkah::count() + 1,
+                4,
+                '0',
+                STR_PAD_LEFT
+            ),
+
+        'user_id' => auth()->id(),
+
+        'alkah_id' => $alkah->id,
+
+        'tanggal_pemesanan' => now(),
+
+        'total' => $alkah->harga,
+
+        'status' => 'Menunggu Verifikasi',
+
+        'alasan_penolakan' => null,
+    ]);
+
+    // ==========================
+    // RESPONSE
+    // ==========================
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Pengajuan alkah berhasil dikirim',
+        'data' => $transaksi
+    ], 201);
+    }
+
+    public function terimaPengajuan($id)
+    {
+    $transaksi = TransaksiAlkah::find($id);
+
+    if (!$transaksi) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Transaksi tidak ditemukan'
+        ], 404);
+    }
+
+    $transaksi->update([
+        'status' => 'Menunggu Pembayaran',
+        'alasan_penolakan' => null
+    ]);
+
+    PembayaranAlkah::create([
+        'transaksi_alkah_id' => $transaksi->id,
+        'total_bayar' => $transaksi->total,
+        'status' => 'Menunggu Pembayaran',
+        'catatan_verifikasi' => null
+    ]);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Pengajuan diterima'
+    ]);
+    }
+
+    public function tolakPengajuan(Request $request, $id)
+    {
+    $request->validate([
+        'alasan_penolakan' => 'required|string'
+    ]);
+
+    $transaksi = TransaksiAlkah::find($id);
+
+    if (!$transaksi) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Transaksi tidak ditemukan'
+        ], 404);
+    }
+
+    $transaksi->update([
+        'status' => 'Ditolak',
+        'alasan_penolakan' => $request->alasan_penolakan
+    ]);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Pengajuan ditolak'
+    ]);
+    }
+
 }

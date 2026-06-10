@@ -15,6 +15,7 @@ class PembayaranAlkah extends Model
         'bukti_pembayaran',
         'total_bayar',
         'status',
+        'catatan',
         'tanggal_bayar',
     ];
 
