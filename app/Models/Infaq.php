@@ -9,7 +9,9 @@ class Infaq extends Model
 {
     //
     protected $fillable = [
+        'nama_penginfaq',
         'nominal',
+        'tujuan_infaq',
         'bukti_infaq',
         'status',
         'tanggal_infaq',

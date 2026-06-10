@@ -71,6 +71,7 @@ Route::get('/infaq', [InfaqController::class, 'index']);
 Route::get('/infaq/{id}', [InfaqController::class, 'show']);
 Route::post('/infaq', [InfaqController::class, 'store']);
 Route::post('/terima-infaq/{id}', [InfaqController::class, 'terimaInfaq'])->middleware('auth:sanctum');
+Route::post('/tolak-infaq/{id}', [InfaqController::class, 'tolakInfaq'])->middleware('auth:sanctum');
 
 //crud Pendaftaran TPA api json
 Route::get('/daftar-tpa', [DaftarTPAController::class, 'index']);
@@ -100,6 +101,7 @@ Route::post('/web', [KontenWebController::class, 'store'])->middleware('auth:san
 Route::put('/web/{id}', [KontenWebController::class, 'update']);
 Route::delete('/web/{id}', [KontenWebController::class, 'destroy']);
 Route::get('/web/published', [KontenWebController::class, 'published']);
+Route::get('/web/kategori/{kategori}', [KontenWebController::class, 'filterByKategori']);
 
 //crud data almarhum api json
 Route::get('/almarhum', [DataAlmarhumController::class, 'index']);

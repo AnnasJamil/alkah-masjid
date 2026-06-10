@@ -12,9 +12,9 @@ class KontenWeb extends Model
     //
     protected $table = 'konten_webs';
     protected $fillable = [
-        'kategori_konten_id',
         'user_id',
         'judul',
+        'kategori',
         'isi',
         'gambar',
         'tanggal_publish',
