@@ -53,7 +53,7 @@ class KontenWebController
         $request->validate([
             'judul' => 'required|string|max:255',
             'isi' => 'required|string',
-            'kategori' => 'required|in:Berita,Pengumuman,Kajian',
+            'kategori' => 'required|in:Berita,Pengumuman,Kegiatan',
             'gambar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'status' => 'required|in:draft,published',
         ]);
@@ -99,7 +99,7 @@ class KontenWebController
         $request->validate([
             'judul' => 'required|string|max:255',
             'isi' => 'required|string',
-            'kategori' => 'required|in:Berita,Pengumuman,Kajian',
+            'kategori' => 'required|in:Berita,Pengumuman,Kegiatan',
             'gambar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'status' => 'required|in:draft,published',
         ]);
