@@ -36,6 +36,7 @@ class User extends Authenticatable
         'nama',
         'email',
         'password',
+        'role',
     ];
 
     public function kontenWebs()

@@ -1,6 +1,7 @@
 <?php
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BlokAlkahController;
 use App\Http\Controllers\AlkahController;
@@ -20,6 +21,13 @@ use App\Http\Controllers\KajianRutinController;
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+
+//admin crud user pengelola alkah dan bendahara
+Route::get('/user', [UserController::class, 'index']);
+Route::get('/user/{id}', [UserController::class, 'show']);
+Route::post('/user', [UserController::class, 'store'])->middleware('auth:sanctum');
+Route::put('/user/{id}', [UserController::class, 'update'])->middleware('auth:sanctum');
+Route::delete('/user/{id}', [UserController::class, 'destroy'])->middleware('auth:sanctum');
 
 //register, login, logout
 Route::post('/register', [AuthController::class, 'register']);

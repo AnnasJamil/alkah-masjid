@@ -52,15 +52,10 @@ class InfaqController
 
         $infaq = Infaq::create([
             'nama_penginfaq' => $request->nama_penginfaq ?: 'Hamba Allah',
-
             'tujuan_infaq' => $request->tujuan_infaq,
-
             'nominal' => $request->nominal,
-
             'bukti_infaq' => $buktiInfaq,
-
             'status' => 'Menunggu Diterima',
-
             'tanggal_infaq' => now(),
         ]);
 
@@ -77,51 +72,64 @@ class InfaqController
 
     public function terimaInfaq(Request $request, $id)
     {
-        $infaq = Infaq::find($id);
+    $request->validate([
+        'nominal' => 'nullable|numeric|min:1000'
+    ]);
 
-        if (!$infaq) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Infaq tidak ditemukan'
-            ], 404);
-        }
+    $infaq = Infaq::find($id);
 
-        if ($infaq->status == 'Diterima') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Infaq sudah diverifikasi sebelumnya'
-            ], 400);
-        }
-
-        DB::transaction(function () use ($infaq, $request) {
-
-            $infaq->update([
-                'status' => 'Diterima'
-            ]);
-
-            JurnalKas::create([
-                'pembayaran_alkah_id' => null,
-                'infaq_id' => $infaq->id,
-                'jenis_kas' => 'Masuk',
-                'tanggal' => now(),
-                'keterangan' => 'Infaq ' . $infaq->tujuan_infaq .  ' dari ' .  $infaq->nama_penginfaq,
-                'nominal' => $infaq->nominal,
-            ]);
-
-            if ($request->user()) {
-                LogAktivitas::create([
-                    'user_id' => $request->user()->id,
-                    'aktivitas' => 'Menerima Infaq sebesar Rp ' .  number_format($infaq->nominal, 0, ',', '.'),
-                    'waktu' => now(),
-                ]);
-            }
-        });
-
+    if (!$infaq) {
         return response()->json([
-            'success' => true,
-            'message' => 'Infaq berhasil diterima dan masuk ke jurnal kas',
-            'data' => $infaq->fresh()
-        ], 200);
+            'success' => false,
+            'message' => 'Infaq tidak ditemukan'
+        ], 404);
+    }
+
+    if ($infaq->status == 'Diterima') {
+        return response()->json([
+            'success' => false,
+            'message' => 'Infaq sudah diverifikasi sebelumnya'
+        ], 400);
+    }
+
+    DB::transaction(function () use ($infaq, $request) {
+
+    $nominalFinal = $request->nominal ?? $infaq->nominal;
+
+    $infaq->update([
+        'nominal' => $nominalFinal,
+        'status' => 'Diterima'
+    ]);
+
+    JurnalKas::create([
+        'pembayaran_alkah_id' => null,
+        'infaq_id' => $infaq->id,
+        'jenis_kas' => 'Masuk',
+        'tanggal' => now(),
+        'keterangan' =>
+            'Infaq ' .
+            $infaq->tujuan_infaq .
+            ' dari ' .
+            $infaq->nama_penginfaq,
+        'nominal' => $nominalFinal,
+    ]);
+
+    if ($request->user()) {
+        LogAktivitas::create([
+            'user_id' => $request->user()->id,
+            'aktivitas' =>
+                'Menerima Infaq sebesar Rp ' .
+                number_format($nominalFinal, 0, ',', '.'),
+            'waktu' => now(),
+        ]);
+    }
+    });
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Infaq berhasil diterima dan masuk ke jurnal kas',
+        'data' => $infaq->fresh()
+    ], 200);
     }
 
     // =====================================
