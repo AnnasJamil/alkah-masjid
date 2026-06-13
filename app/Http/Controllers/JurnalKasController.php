@@ -163,7 +163,7 @@ class JurnalKasController
         ->sum('nominal');
 
     // SALDO SEKARANG
-    $saldoSekarang = + $pemasukan - $pengeluaran;
+    $saldoSekarang = $saldoJumatLalu + $pemasukan - $pengeluaran;
 
     // DETAIL PEMASUKAN
     $detailPemasukan = JurnalKas::where('jenis_kas', 'Masuk')

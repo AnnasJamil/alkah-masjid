@@ -9,9 +9,7 @@ use App\Http\Controllers\TransaksiAlkahController;
 use App\Http\Controllers\PembayaranAlkahController;
 use App\Http\Controllers\InfaqController;
 use App\Http\Controllers\JurnalKasController;
-use App\Http\Controllers\DaftarTPAController;
 use App\Http\Controllers\StrukturPengurusController;
-use App\Http\Controllers\KategoriKontenController;
 use App\Http\Controllers\KontenWebController;
 use App\Http\Controllers\LogAktivitasController;
 use App\Http\Controllers\ProfiljamaahController;
@@ -81,13 +79,6 @@ Route::post('/infaq', [InfaqController::class, 'store']);
 Route::post('/terima-infaq/{id}', [InfaqController::class, 'terimaInfaq'])->middleware('auth:sanctum');
 Route::post('/tolak-infaq/{id}', [InfaqController::class, 'tolakInfaq'])->middleware('auth:sanctum');
 
-//crud Pendaftaran TPA api json
-Route::get('/daftar-tpa', [DaftarTPAController::class, 'index']);
-Route::get('/daftar-tpa/{id}', [DaftarTPAController::class, 'show']);
-Route::post('/daftar-tpa', [DaftarTPAController::class, 'store']);
-Route::put('/daftar-tpa/{id}', [DaftarTPAController::class, 'update']);
-Route::delete('/daftar-tpa/{id}', [DaftarTPAController::class, 'destroy']);
-
 //crud struktur pengurus api json
 Route::get('/pengurus', [StrukturPengurusController::class, 'index']);
 Route::get('/pengurus/{id}', [StrukturPengurusController::class, 'show']);
@@ -95,19 +86,12 @@ Route::post('/pengurus', [StrukturPengurusController::class, 'store']);
 Route::put('/pengurus/{id}', [StrukturPengurusController::class, 'update']);
 Route::delete('/pengurus/{id}', [StrukturPengurusController::class, 'destroy']);
 
-//crud kategori konten api json
-Route::get('/kategori-konten', [KategoriKontenController::class, 'index']);
-Route::get('/kategori-konten/{id}', [KategoriKontenController::class, 'show']);
-Route::post('/kategori-konten', [KategoriKontenController::class, 'store']);
-Route::put('/kategori-konten/{id}', [KategoriKontenController::class, 'update']);
-Route::delete('/kategori-konten/{id}', [KategoriKontenController::class, 'destroy']);
-
 //crud konten web api json
 Route::get('/web', [KontenWebController::class, 'index']);
 Route::get('/web/{id}', [KontenWebController::class, 'show'])->where('id', '[0-9]+');
 Route::post('/web', [KontenWebController::class, 'store'])->middleware('auth:sanctum');
-Route::put('/web/{id}', [KontenWebController::class, 'update']);
-Route::delete('/web/{id}', [KontenWebController::class, 'destroy']);
+Route::put('/web/{id}', [KontenWebController::class, 'update'])->middleware('auth:sanctum');
+Route::delete('/web/{id}', [KontenWebController::class, 'destroy'])->middleware('auth:sanctum');
 Route::get('/web/published', [KontenWebController::class, 'published']);
 Route::get('/web/kategori/{kategori}', [KontenWebController::class, 'filterByKategori']);
 

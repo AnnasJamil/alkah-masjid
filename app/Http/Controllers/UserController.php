@@ -138,10 +138,10 @@ class UserController
             ], 404);
         }
 
-        if ($user->role == 'Admin') {
+        if ($user->role == 'Admin' || $user->role == 'Jamaah') {
             return response()->json([
                 'success' => false,
-                'message' => 'Admin tidak boleh dihapus'
+                'message' => 'Admin dan Jamaah tidak boleh dihapus'
             ], 400);
         }
 

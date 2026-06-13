@@ -9,7 +9,7 @@ class LogAktivitasController
 {
      public function index()
     {
-        $data = LogAktivitas::with('user')
+        $data = LogAktivitas::with('user:id,nama,role')
             ->orderBy('waktu', 'desc')
             ->get();
 
