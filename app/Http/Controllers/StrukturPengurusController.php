@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\StrukturPengurus;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
+use App\Models\LogAktivitas;
+use App\Models\User;
 
 class StrukturPengurusController
 {
@@ -55,6 +59,14 @@ class StrukturPengurusController
             'periode' => $request->periode,
         ]);
 
+        // Log aktivitas
+        $user = auth()->user();
+        LogAktivitas::create([
+            'user_id' => $user->id,
+            'aktivitas' => "Menambahkan struktur pengurus {$data->nama} ({$data->jabatan})",
+            'waktu' => now(),
+        ]);
+
         return response()->json([
         'message' => 'Struktur Pengurus berhasil ditambahkan',
         'data' => $data
@@ -89,6 +101,14 @@ class StrukturPengurusController
         $strukturPengurus->periode = $request->periode;
         $strukturPengurus->save();
 
+        // Log aktivitas
+        $user = auth()->user();
+        LogAktivitas::create([
+            'user_id' => $user->id,
+            'aktivitas' => "Mengubah struktur pengurus: {$strukturPengurus->nama} ({$strukturPengurus->jabatan})",
+            'waktu' => now(),
+        ]);
+
         return response()->json([
             'message' => 'Struktur Pengurus berhasil diupdate',
             'data' => $strukturPengurus
@@ -106,7 +126,13 @@ class StrukturPengurusController
         }
 
         $strukturPengurus->delete();
-
+        // Log aktivitas
+        $user = auth()->user();
+        LogAktivitas::create([
+            'user_id' => $user->id,
+            'aktivitas' => "Menghapus struktur pengurus {$strukturPengurus->nama} ({$strukturPengurus->jabatan})",
+            'waktu' => now(),
+        ]);
         return response()->json([
             'message' => 'Struktur Pengurus berhasil dihapus'
         ], 200);

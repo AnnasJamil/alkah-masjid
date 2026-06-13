@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\DataAlmarhum;
 use App\Models\Alkah;
+use Illuminate\Support\Facades\Validator;
+use App\Models\LogAktivitas;
 
 class DataAlmarhumController
 {
@@ -47,9 +49,28 @@ class DataAlmarhumController
             'umur' => 'required|string',
         ]);
 
+        $cek = DataAlmarhum::where(
+        'alkah_id',
+        $request->alkah_id
+        )->exists();
+
+             if ($cek) {
+        return response()->json([
+        'success' => false,
+        'message' => 'Alkah sudah terisi data almarhum'
+        ], 400);
+     }
+
         $dataAlmarhum = DataAlmarhum::create($request->all());
         //update status alkah menjadi terisi
         $this->cekStatusAlkah($request->alkah_id);
+        $alkah = Alkah::find($request->alkah_id);
+        //log aktivitas kode alkah dan nama almarhum
+        LogAktivitas::create([
+            'user_id' => auth()->id(),
+            'aktivitas' => 'Alkah '.$alkah->kode_alkah.' berhasil ditambahkan dengan data almarhum '.$request->nama_almarhum,
+            'waktu' => now(),
+        ]);
         return response()->json([
             'success' => true,
             'message' => 'Data almarhum berhasil disimpan',
@@ -71,6 +92,13 @@ class DataAlmarhumController
             ]);
 
             $dataAlmarhum->update($request->all());
+            $alkah = Alkah::find($request->alkah_id);
+            //log aktivitas
+            LogAktivitas::create([
+                'user_id' => auth()->id(),
+                'aktivitas' => 'Data Almarhum '.$dataAlmarhum->nama_almarhum.'di alkah '.$alkah->kode_alkah.' berhasil diubah',
+                'waktu' => now(),
+            ]);
             $this->cekStatusAlkah($request->alkah_id);
             return response()->json([
                 'success' => true,
@@ -90,8 +118,15 @@ class DataAlmarhumController
             $dataAlmarhum = DataAlmarhum::find($id);
             if ($dataAlmarhum){
                 $dataAlmarhum->delete();
+                    $alkah = Alkah::find($dataAlmarhum->alkah_id);
                     //update status alkah menjadi tersedia
                     $this->cekStatusAlkah($dataAlmarhum->alkah_id);
+                    //log aktivitas
+                    LogAktivitas::create([
+                        'user_id' => auth()->id(),
+                        'aktivitas' => 'Data Almarhum '.$dataAlmarhum->nama_almarhum.'di alkah '.$alkah->kode_alkah.' berhasil dihapus',
+                        'waktu' => now(),
+                    ]);
                 return response()->json([
                     'success' => true,
                     'message' => 'Data almarhum berhasil dihapus',

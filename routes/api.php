@@ -82,9 +82,9 @@ Route::post('/tolak-infaq/{id}', [InfaqController::class, 'tolakInfaq'])->middle
 //crud struktur pengurus api json
 Route::get('/pengurus', [StrukturPengurusController::class, 'index']);
 Route::get('/pengurus/{id}', [StrukturPengurusController::class, 'show']);
-Route::post('/pengurus', [StrukturPengurusController::class, 'store']);
-Route::put('/pengurus/{id}', [StrukturPengurusController::class, 'update']);
-Route::delete('/pengurus/{id}', [StrukturPengurusController::class, 'destroy']);
+Route::post('/pengurus', [StrukturPengurusController::class, 'store'])->middleware('auth:sanctum');
+Route::put('/pengurus/{id}', [StrukturPengurusController::class, 'update'])->middleware('auth:sanctum');
+Route::delete('/pengurus/{id}', [StrukturPengurusController::class, 'destroy'])->middleware('auth:sanctum');
 
 //crud konten web api json
 Route::get('/web', [KontenWebController::class, 'index']);
@@ -98,16 +98,16 @@ Route::get('/web/kategori/{kategori}', [KontenWebController::class, 'filterByKat
 //crud data almarhum api json
 Route::get('/almarhum', [DataAlmarhumController::class, 'index']);
 Route::get('/almarhum/{id}', [DataAlmarhumController::class, 'show']);
-Route::post('/almarhum', [DataAlmarhumController::class, 'store']);
-Route::put('/almarhum/{id}', [DataAlmarhumController::class, 'update']);
-Route::delete('/almarhum/{id}', [DataAlmarhumController::class, 'destroy']);
+Route::post('/almarhum', [DataAlmarhumController::class, 'store'])->middleware('auth:sanctum');
+Route::put('/almarhum/{id}', [DataAlmarhumController::class, 'update'])->middleware('auth:sanctum');
+Route::delete('/almarhum/{id}', [DataAlmarhumController::class, 'destroy'])->middleware('auth:sanctum');
 
 //crud kajian rutin api json
 Route::get('/kajian', [KajianRutinController::class, 'index']);
 Route::get('/kajian/{id}', [KajianRutinController::class, 'show']);
-Route::post('/kajian', [KajianRutinController::class, 'store']);
-Route::put('/kajian/{id}', [KajianRutinController::class, 'update']);
-Route::delete('/kajian/{id}', [KajianRutinController::class, 'destroy']);
+Route::post('/kajian', [KajianRutinController::class, 'store'])->middleware('auth:sanctum');
+Route::put('/kajian/{id}', [KajianRutinController::class, 'update'])->middleware('auth:sanctum');
+Route::delete('/kajian/{id}', [KajianRutinController::class, 'destroy'])->middleware('auth:sanctum');
 
 //log aktivitas api json
 Route::get('/log', [LogAktivitasController::class, 'index']);

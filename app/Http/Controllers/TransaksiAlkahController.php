@@ -9,6 +9,7 @@ use App\Models\PembayaranAlkah;
 use App\Models\ProfilJamaah;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use App\Models\LogAktivitas;
 
 class TransaksiAlkahController
 {
@@ -140,6 +141,12 @@ public function store(Request $request)
         ], 400);
     }
 
+    //log aktivitas
+    LogAktivitas::create([
+        'user_id' => auth()->id(),
+        'aktivitas' => 'Mengajukan pembelian alkah ' . $alkah->kode_alkah,
+        'waktu' => now(),
+    ]);
     // ==========================
     // BUAT TRANSAKSI
     // ==========================
@@ -201,6 +208,14 @@ public function store(Request $request)
         'catatan_verifikasi' => null
     ]);
 
+    $alkah = Alkah::find($transaksi->alkah_id);
+    //log aktivitas
+    LogAktivitas::create([
+        'user_id' => auth()->id(),
+        'aktivitas' => 'Menerima pengajuan alkah ' . $alkah->kode_alkah,
+        'waktu' => now(),
+    ]);
+
     return response()->json([
         'success' => true,
         'message' => 'Pengajuan diterima'
@@ -225,6 +240,14 @@ public function store(Request $request)
     $transaksi->update([
         'status' => 'Ditolak',
         'alasan_penolakan' => $request->alasan_penolakan
+    ]);
+
+    $alkah = Alkah::find($transaksi->alkah_id);
+    //log aktivitas
+    LogAktivitas::create([
+        'user_id' => auth()->id(),
+        'aktivitas' => 'Menolak pengajuan alkah ' . $alkah->kode_alkah,
+        'waktu' => now(),
     ]);
 
     return response()->json([

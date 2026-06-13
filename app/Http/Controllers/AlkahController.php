@@ -7,6 +7,7 @@ use App\Models\Alkah;
 use Illuminate\Support\Facades\Validator;
 use App\Models\BlokAlkah;
 use App\Models\DataAlmarhum;
+use App\Models\LogAktivitas;
 
 
 class AlkahController
@@ -47,6 +48,12 @@ class AlkahController
             'harga' => 'required|numeric',
             'status' => 'nullable|in:Tersedia,Terisi,Dipesan',
         ]);
+        //log aktivitas
+        LogAktivitas::create([
+            'user_id' => auth()->id(),
+            'aktivitas' => 'Alkah '.$request->kode_alkah.' berhasil ditambahkan',
+            'waktu' => now(),
+        ]);
         $alkah = Alkah::create($request->all());
             // cek status blok setelah tambah alkah
             $this->cekStatusBlok($request->blok_alkah_id);
@@ -66,6 +73,12 @@ class AlkahController
                 'kode_alkah' => 'required|string|max:3|unique:alkahs,kode_alkah,'.$id,
                 'harga' => 'required|numeric',
                 'status' => 'nullable|in:Tersedia,Terisi,Dipesan',
+            ]);
+            //log aktivitas
+            LogAktivitas::create([
+                'user_id' => auth()->id(),
+                'aktivitas' => 'Alkah '.$alkah->kode_alkah.' berhasil diupdate menjadi Alkah '.$request->kode_alkah,
+                'waktu' => now(),
             ]);
             $alkah->update($request->all());
             // cek status blok setelah update alkah
@@ -87,6 +100,12 @@ class AlkahController
     {
         $alkah = Alkah::find($id);
         if ($alkah) {
+            //log aktivitas
+            LogAktivitas::create([
+                'user_id' => auth()->id(),
+                'aktivitas' => 'Alkah '.$alkah->kode_alkah.' berhasil dihapus',
+                'waktu' => now(),
+            ]);
             $alkah->delete();
             return response()->json([
                 'success' => true,

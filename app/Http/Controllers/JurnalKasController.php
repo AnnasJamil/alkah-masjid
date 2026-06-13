@@ -85,7 +85,7 @@ class JurnalKasController
         //log aktivitas
         LogAktivitas::create([
             'user_id' => $request->user()->id, // pastikan user sudah login
-            'aktivitas' => 'Menambahkan jurnal kas ' . $jurnalKas->jenis_kas . ' dengan nominal ' . $jurnalKas->nominal,
+            'aktivitas' => 'jurnal kas ' . $jurnalKas->jenis_kas . ' dengan nominal ' . $jurnalKas->nominal,
             'waktu' => now(),
         ]);
 

@@ -7,6 +7,7 @@ use App\Models\KontenWeb;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use App\Models\user;
+use App\Models\LogAktivitas;
 
 class KontenWebController
 {
@@ -74,6 +75,12 @@ class KontenWebController
             'gambar' => $gambar,
             'status' => $request->status,
         ]);
+        // Log aktivitas
+        LogAktivitas::create([
+            'user_id' => auth()->id(),
+            'aktivitas' => 'Membuat konten web ' . $konten->kategori . ' - ' . $konten->judul,
+            'waktu' => now()
+        ]);
 
         return response()->json([
             'success' => true,
@@ -133,6 +140,13 @@ class KontenWebController
 
         $konten->save();
 
+        // Log aktivitas
+        LogAktivitas::create([
+            'user_id' => auth()->id(),
+            'aktivitas' => 'Mengupdate konten web ' . $konten->kategori . ' - ' . $konten->judul,
+            'waktu' => now()
+        ]);
+
         return response()->json([
             'success' => true,
             'message' => 'Konten berhasil diupdate',
@@ -160,6 +174,13 @@ class KontenWebController
         }
 
         $konten->delete();
+
+        // Log aktivitas
+        LogAktivitas::create([
+            'user_id' => auth()->id(),
+            'aktivitas' => 'Menghapus konten web ' . $konten->kategori . ' - ' . $konten->judul,
+            'waktu' => now()
+        ]);
 
         return response()->json([
             'success' => true,

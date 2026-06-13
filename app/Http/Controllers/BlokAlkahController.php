@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\BlokAlkah;
 use Illuminate\Support\Facades\Validator;
+use App\Models\LogAktivitas;
 
 class BlokAlkahController
 {
@@ -46,6 +47,14 @@ class BlokAlkahController
             'status' => 'nullable|in:Tersedia,Penuh',
         ]);
         $blok = BlokAlkah::create($request->all());
+
+        //log aktivitas
+       LogAktivitas::create([
+        'user_id' => auth()->id(),
+        'aktivitas' => 'Blok Alkah '.$blok->kode_blok.' berhasil ditambahkan',
+        'waktu' => now(),
+        ]);
+
         return response()->json([
             'success' => true,
             'message' => 'Blok Alkah berhasil ditambahkan',
@@ -60,6 +69,12 @@ class BlokAlkahController
             'status' => 'nullable|in:Tersedia,Penuh',
         ]);
         $blok = BlokAlkah::find($id);
+            //log aktivitas
+            LogAktivitas::create([
+                'user_id' => auth()->id(),
+                'aktivitas' => 'Blok Alkah '.$blok->kode_blok.' berhasil diupdate menjadi Blok '.$request->kode_blok,
+                'waktu' => now(),
+            ]);
         if ($blok) {
             $blok->update($request->all());
             return response()->json([
@@ -79,6 +94,13 @@ class BlokAlkahController
     {
         $blok = BlokAlkah::find($id);
         if ($blok) {
+            //log aktivitas
+            LogAktivitas::create([
+                'user_id' => auth()->id(),
+                'aktivitas' => 'Blok Alkah '.$blok->kode_blok.' berhasil dihapus',
+                'waktu' => now(),
+            ]);
+
             $blok->delete();
             return response()->json([
                 'success' => true,

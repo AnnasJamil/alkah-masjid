@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\KajianRutin;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use App\Models\LogAktivitas;
+use App\Models\User;
 
 class KajianRutinController
 {
@@ -67,6 +69,13 @@ class KajianRutinController
         'gambar' => $gambar,
     ]);
 
+    // Log aktivitas
+    LogAktivitas::create([
+        'user_id' => auth()->id(),
+        'aktivitas' => 'Membuat ' . $kajianRutin->judul,
+        'waktu' => now()
+    ]);
+
     return response()->json([
         'success' => true,
         'message' => 'Kajian Rutin berhasil ditambahkan',
@@ -116,6 +125,13 @@ class KajianRutinController
 
     $kajianRutin->update($data);
 
+    // Log aktivitas
+    LogAktivitas::create([
+        'user_id' => auth()->id(),
+        'aktivitas' => 'Mengubah ' . $kajianRutin->judul,
+        'waktu' => now()
+    ]);
+
     return response()->json([
         'success' => true,
         'message' => 'Kajian Rutin berhasil diupdate',
@@ -130,6 +146,13 @@ class KajianRutinController
         if ($kajianRutin) {
             Storage::delete('public/' . $kajianRutin->gambar);
             $kajianRutin->delete();
+
+            // Log aktivitas
+            LogAktivitas::create([
+                'user_id' => auth()->id(),
+                'aktivitas' => 'Menghapus ' . $kajianRutin->judul,
+                'waktu' => now()
+            ]);
             return response()->json([
                 'success' => true,
                 'message' => 'Kajian Rutin berhasil dihapus',

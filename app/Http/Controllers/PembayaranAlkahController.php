@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\JurnalKas;
 use App\Models\Alkah;
 use App\Models\BlokAlkah;
+use App\Models\LogAktivitas;
 
 class PembayaranAlkahController
 {
@@ -70,6 +71,15 @@ class PembayaranAlkahController
         'catatan' => null
     ]);
 
+    $alkah = Alkah::find($pembayaran->transaksiAlkah->alkah_id);
+    //log aktivitas upload bukti pembayaran
+    LogAktivitas::create([
+        'user_id' => auth()->id(),
+        'aktivitas' =>
+            'Mengupload bukti pembayaran untuk transaksi alkah ' . $alkah->kode_alkah,
+        'waktu' => now()
+    ]);
+
     return response()->json([
         'success' => true,
         'message' => 'Bukti pembayaran berhasil diupload',
@@ -98,6 +108,14 @@ class PembayaranAlkahController
         'catatan' => $request->catatan
     ]);
 
+    $alkah = Alkah::find($pembayaran->transaksiAlkah->alkah_id);
+    //log aktivitas perbaiki bukti pembayaran
+    LogAktivitas::create([
+        'user_id' => auth()->id(),
+        'aktivitas' =>
+            'Memperbaiki bukti pembayaran untuk transaksi alkah ' . $alkah->kode_alkah,
+        'waktu' => now()
+    ]);
     return response()->json([
         'success' => true,
         'message' => 'Bukti pembayaran perlu diperbaiki',
@@ -150,6 +168,15 @@ class PembayaranAlkahController
         'nominal' => $pembayaran->total_bayar,
     ]);
 
+    $alkah = Alkah::find($transaksi->alkah_id);
+    //log aktivitas verifikasi pembayaran
+    LogAktivitas::create([
+        'user_id' => auth()->id(),
+        'aktivitas' =>
+            'Memverifikasi pembayaran untuk transaksi alkah ' . $alkah->kode_alkah,
+        'waktu' => now()
+    ]);
+    
     return response()->json([
         'success' => true,
         'message' => 'Pembayaran berhasil diverifikasi',

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use App\Models\LogAktivitas;
 
 class UserController
 {
@@ -54,6 +55,13 @@ class UserController
             'role' => $request->role,
         ]);
 
+        //log aktivitas
+        LogAktivitas::create([
+            'user_id' => auth()->user()->id,
+            'aktivitas' => 'Menambahkan role ' . $request->role . ' dengan nama ' . $request->nama,
+            'waktu' => now(),
+        ]);
+
         return response()->json([
             'success' => true,
             'message' => 'User berhasil dibuat',
@@ -93,6 +101,13 @@ class UserController
             'role' => $request->role,
         ]);
 
+        //log aktivitas
+        LogAktivitas::create([
+            'user_id' => auth()->user()->id,
+            'aktivitas' => 'Mengubah role ' . $request->role . ' dengan nama ' . $request->nama,
+            'waktu' => now(),
+        ]);
+
         return response()->json([
             'success' => true,
             'message' => 'User berhasil diupdate',
@@ -118,6 +133,13 @@ class UserController
 
         $user->update([
             'password' => Hash::make($request->password)
+        ]);
+
+        //log aktivitas
+        LogAktivitas::create([
+            'user_id' => auth()->user()->id,
+            'aktivitas' => 'Meriset password role ' . $user->role . ' dengan nama ' . $user->nama,
+            'waktu' => now(),
         ]);
 
         return response()->json([
@@ -146,6 +168,13 @@ class UserController
         }
 
         $user->delete();
+
+        //log aktivitas
+        LogAktivitas::create([
+            'user_id' => auth()->user()->id,
+            'aktivitas' => 'Menghapus role ' . $user->role . ' dengan nama ' . $user->nama,
+            'waktu' => now(),
+        ]);
 
         return response()->json([
             'success' => true,
