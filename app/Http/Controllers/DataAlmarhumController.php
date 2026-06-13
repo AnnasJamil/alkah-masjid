@@ -68,7 +68,7 @@ class DataAlmarhumController
         //log aktivitas kode alkah dan nama almarhum
         LogAktivitas::create([
             'user_id' => auth()->id(),
-            'aktivitas' => 'Alkah '.$alkah->kode_alkah.' berhasil ditambahkan dengan data almarhum '.$request->nama_almarhum,
+            'aktivitas' => 'Alkah '.$alkah->kode_alkah.' terisi data almarhum '.$request->nama_almarhum,
             'waktu' => now(),
         ]);
         return response()->json([

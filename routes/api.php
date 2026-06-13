@@ -23,9 +23,9 @@ Route::get('/user', function (Request $request) {
 //admin crud user pengelola alkah dan bendahara
 Route::get('/user', [UserController::class, 'index']);
 Route::get('/user/{id}', [UserController::class, 'show']);
-Route::post('/user', [UserController::class, 'store'])->middleware('auth:sanctum');
-Route::put('/user/{id}', [UserController::class, 'update'])->middleware('auth:sanctum');
-Route::delete('/user/{id}', [UserController::class, 'destroy'])->middleware('auth:sanctum');
+Route::post('/user', [UserController::class, 'store'])->middleware('auth:sanctum')->middleware('role:Admin');
+Route::put('/user/{id}', [UserController::class, 'update'])->middleware('auth:sanctum')->middleware('role:Admin');
+Route::delete('/user/{id}', [UserController::class, 'destroy'])->middleware('auth:sanctum')->middleware('role:Admin');
 
 //register, login, logout
 Route::post('/register', [AuthController::class, 'register']);
@@ -33,81 +33,83 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 Route::post('/update-password', [AuthController::class, 'updatePassword']);
-Route::post('/profil', [ProfilJamaahController::class, 'store'])->middleware('auth:sanctum');
-Route::get('/profil', [ProfilJamaahController::class, 'show'])->middleware('auth:sanctum');
+
+//profil jamaah
+Route::post('/profil', [ProfilJamaahController::class, 'store'])->middleware('auth:sanctum')->middleware('role:Jamaah');
+Route::get('/profil', [ProfilJamaahController::class, 'show'])->middleware('auth:sanctum')->middleware('role:Jamaah');
 
 //crud blok alkah api json
 Route::get('/blok', [BlokAlkahController::class, 'index']);
 Route::get('/blok/{id}', [BlokAlkahController::class, 'show']);
-Route::post('/blok', [BlokAlkahController::class, 'store'])->middleware('auth:sanctum');
-Route::put('/blok/{id}', [BlokAlkahController::class, 'update'])->middleware('auth:sanctum');
-Route::delete('/blok/{id}', [BlokAlkahController::class, 'destroy'])->middleware('auth:sanctum');
+Route::post('/blok', [BlokAlkahController::class, 'store'])->middleware('auth:sanctum')->middleware('role:Pengelola Alkah');
+Route::put('/blok/{id}', [BlokAlkahController::class, 'update'])->middleware('auth:sanctum')->middleware('role:Pengelola Alkah');
+Route::delete('/blok/{id}', [BlokAlkahController::class, 'destroy'])->middleware('auth:sanctum')->middleware('role:Pengelola Alkah');
 
 //crud alkah api json
 Route::get('/alkah', [AlkahController::class, 'index']);
 Route::get('/alkah/{id}', [AlkahController::class, 'show']);
-Route::post('/alkah', [AlkahController::class, 'store'])->middleware('auth:sanctum');
-Route::put('/alkah/{id}', [AlkahController::class, 'update'])->middleware('auth:sanctum');
-Route::delete('/alkah/{id}', [AlkahController::class, 'destroy'])->middleware('auth:sanctum');
+Route::post('/alkah', [AlkahController::class, 'store'])->middleware('auth:sanctum')->middleware('role:Pengelola Alkah');
+Route::put('/alkah/{id}', [AlkahController::class, 'update'])->middleware('auth:sanctum')->middleware('role:Pengelola Alkah');
+Route::delete('/alkah/{id}', [AlkahController::class, 'destroy'])->middleware('auth:sanctum')->middleware('role:Pengelola Alkah');
 
 //crud transaksi alkah api json
 Route::get('/transaksi', [TransaksiAlkahController::class, 'index']);
 Route::get('/transaksi/{id}', [TransaksiAlkahController::class, 'show']);
-Route::post('/transaksi', [TransaksiAlkahController::class, 'store'])->middleware('auth:sanctum', 'role:Jamaah');
-Route::put('/transaksi/{id}/terima', [TransaksiAlkahController::class, 'terimaPengajuan'])->middleware('auth:sanctum');
-Route::put('/transaksi/{id}/tolak', [TransaksiAlkahController::class, 'tolakPengajuan'])->middleware('auth:sanctum');
+Route::post('/transaksi', [TransaksiAlkahController::class, 'store'])->middleware('auth:sanctum')->middleware('role:Jamaah');
+Route::put('/transaksi/{id}/terima', [TransaksiAlkahController::class, 'terimaPengajuan'])->middleware('auth:sanctum')->middleware('role:Pengelola Alkah');
+Route::put('/transaksi/{id}/tolak', [TransaksiAlkahController::class, 'tolakPengajuan'])->middleware('auth:sanctum')->middleware('role:Pengelola Alkah');
 
 //crud pembayaran alkah api json
 Route::get('/pembayaran', [PembayaranAlkahController::class, 'index']);
 Route::get('/pembayaran/{id}', [PembayaranAlkahController::class, 'show']);
-Route::post('/upload-bukti/{id}', [PembayaranAlkahController::class, 'uploadBukti'])->middleware('auth:sanctum');
-Route::post('/perbaiki-bukti/{id}', [PembayaranAlkahController::class, 'perbaikiBukti'])->middleware('auth:sanctum');
-Route::post('/verifikasi-pembayaran/{id}', [PembayaranAlkahController::class, 'verifikasiPembayaran'])->middleware('auth:sanctum');
+Route::post('/upload-bukti/{id}', [PembayaranAlkahController::class, 'uploadBukti'])->middleware('auth:sanctum')->middleware('role:Jamaah');
+Route::post('/perbaiki-bukti/{id}', [PembayaranAlkahController::class, 'perbaikiBukti'])->middleware('auth:sanctum')->middleware('role:Pengelola Alkah');
+Route::post('/verifikasi-pembayaran/{id}', [PembayaranAlkahController::class, 'verifikasiPembayaran'])->middleware('auth:sanctum')->middleware('role:Pengelola Alkah');
 
 //crud jurnal kas api json
 Route::get('/jurnal-kas', [JurnalKasController::class, 'index']);
 Route::get('/jurnal-kas/{id}', [JurnalKasController::class, 'show']);
-Route::post('/jurnal-kas', [JurnalKasController::class, 'store'])->middleware('auth:sanctum');
-Route::put('/jurnal-kas/{id}', [JurnalKasController::class, 'update'])->middleware('auth:sanctum');
-Route::delete('/jurnal-kas/{id}', [JurnalKasController::class, 'destroy'])->middleware('auth:sanctum');
+Route::post('/jurnal-kas', [JurnalKasController::class, 'store'])->middleware('auth:sanctum')->middleware('role:Bendahara');
+Route::put('/jurnal-kas/{id}', [JurnalKasController::class, 'update'])->middleware('auth:sanctum')->middleware('role:Bendahara');
+Route::delete('/jurnal-kas/{id}', [JurnalKasController::class, 'destroy'])->middleware('auth:sanctum')->middleware('role:Bendahara');
 Route::get('/jurnal-minggu', [JurnalKasController::class, 'LaporanMingguan']);
 
 //crud infaq api json
 Route::get('/infaq', [InfaqController::class, 'index']);
 Route::get('/infaq/{id}', [InfaqController::class, 'show']);
 Route::post('/infaq', [InfaqController::class, 'store']);
-Route::post('/terima-infaq/{id}', [InfaqController::class, 'terimaInfaq'])->middleware('auth:sanctum');
-Route::post('/tolak-infaq/{id}', [InfaqController::class, 'tolakInfaq'])->middleware('auth:sanctum');
+Route::post('/terima-infaq/{id}', [InfaqController::class, 'terimaInfaq'])->middleware('auth:sanctum')->middleware('role:Bendahara');
+Route::post('/tolak-infaq/{id}', [InfaqController::class, 'tolakInfaq'])->middleware('auth:sanctum')->middleware('role:Bendahara');
 
 //crud struktur pengurus api json
 Route::get('/pengurus', [StrukturPengurusController::class, 'index']);
 Route::get('/pengurus/{id}', [StrukturPengurusController::class, 'show']);
-Route::post('/pengurus', [StrukturPengurusController::class, 'store'])->middleware('auth:sanctum');
-Route::put('/pengurus/{id}', [StrukturPengurusController::class, 'update'])->middleware('auth:sanctum');
-Route::delete('/pengurus/{id}', [StrukturPengurusController::class, 'destroy'])->middleware('auth:sanctum');
+Route::post('/pengurus', [StrukturPengurusController::class, 'store'])->middleware('auth:sanctum')->middleware('role:Admin');
+Route::put('/pengurus/{id}', [StrukturPengurusController::class, 'update'])->middleware('auth:sanctum')->middleware('role:Admin');
+Route::delete('/pengurus/{id}', [StrukturPengurusController::class, 'destroy'])->middleware('auth:sanctum')->middleware('role:Admin');
 
 //crud konten web api json
 Route::get('/web', [KontenWebController::class, 'index']);
 Route::get('/web/{id}', [KontenWebController::class, 'show'])->where('id', '[0-9]+');
-Route::post('/web', [KontenWebController::class, 'store'])->middleware('auth:sanctum');
-Route::put('/web/{id}', [KontenWebController::class, 'update'])->middleware('auth:sanctum');
-Route::delete('/web/{id}', [KontenWebController::class, 'destroy'])->middleware('auth:sanctum');
+Route::post('/web', [KontenWebController::class, 'store'])->middleware('auth:sanctum')->middleware('role:Admin');
+Route::put('/web/{id}', [KontenWebController::class, 'update'])->middleware('auth:sanctum')->middleware('role:Admin');
+Route::delete('/web/{id}', [KontenWebController::class, 'destroy'])->middleware('auth:sanctum')->middleware('role:Admin');
 Route::get('/web/published', [KontenWebController::class, 'published']);
 Route::get('/web/kategori/{kategori}', [KontenWebController::class, 'filterByKategori']);
 
 //crud data almarhum api json
 Route::get('/almarhum', [DataAlmarhumController::class, 'index']);
 Route::get('/almarhum/{id}', [DataAlmarhumController::class, 'show']);
-Route::post('/almarhum', [DataAlmarhumController::class, 'store'])->middleware('auth:sanctum');
-Route::put('/almarhum/{id}', [DataAlmarhumController::class, 'update'])->middleware('auth:sanctum');
-Route::delete('/almarhum/{id}', [DataAlmarhumController::class, 'destroy'])->middleware('auth:sanctum');
+Route::post('/almarhum', [DataAlmarhumController::class, 'store'])->middleware('auth:sanctum')->middleware('role:Pengelola Alkah');
+Route::put('/almarhum/{id}', [DataAlmarhumController::class, 'update'])->middleware('auth:sanctum')->middleware('role:Pengelola Alkah');
+Route::delete('/almarhum/{id}', [DataAlmarhumController::class, 'destroy'])->middleware('auth:sanctum')->middleware('role:Pengelola Alkah');
 
 //crud kajian rutin api json
 Route::get('/kajian', [KajianRutinController::class, 'index']);
 Route::get('/kajian/{id}', [KajianRutinController::class, 'show']);
-Route::post('/kajian', [KajianRutinController::class, 'store'])->middleware('auth:sanctum');
-Route::put('/kajian/{id}', [KajianRutinController::class, 'update'])->middleware('auth:sanctum');
-Route::delete('/kajian/{id}', [KajianRutinController::class, 'destroy'])->middleware('auth:sanctum');
+Route::post('/kajian', [KajianRutinController::class, 'store'])->middleware('auth:sanctum')->middleware('role:Admin');
+Route::put('/kajian/{id}', [KajianRutinController::class, 'update'])->middleware('auth:sanctum')->middleware('role:Admin');
+Route::delete('/kajian/{id}', [KajianRutinController::class, 'destroy'])->middleware('auth:sanctum')->middleware('role:Admin');
 
 //log aktivitas api json
 Route::get('/log', [LogAktivitasController::class, 'index']);

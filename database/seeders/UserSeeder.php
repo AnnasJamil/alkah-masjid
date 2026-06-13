@@ -11,18 +11,26 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         // =====================================
-        // JAMAAH
+        // ADMIN
         // =====================================
 
         User::create([
-
-            'nama' => 'Jamaah',
-
-            'email' => 'jamaah@gmail.com',
-
+            'nama' => 'admin',
+            'email' => 'admin@gmail.com',
             'password' => Hash::make('12345678'),
-
-            'role' => 'Jamaah',
+            'role' => 'Admin',
         ]);
+
+        // =====================================
+        // KETUA
+        // =====================================
+        User::create([
+            'nama' => 'ketua',
+            'email' => 'ketua@gmail.com',
+            'password' => Hash::make('12345678'),
+            'role' => 'Ketua',
+        ]);
+
+        //cara call seeder: php artisan db:seed --class=UserSeeder
     }
 }
