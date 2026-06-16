@@ -26,6 +26,7 @@ Route::get('/user/{id}', [UserController::class, 'show']);
 Route::post('/user', [UserController::class, 'store'])->middleware('auth:sanctum')->middleware('role:Admin');
 Route::put('/user/{id}', [UserController::class, 'update'])->middleware('auth:sanctum')->middleware('role:Admin');
 Route::delete('/user/{id}', [UserController::class, 'destroy'])->middleware('auth:sanctum')->middleware('role:Admin');
+Route::put('/user/reset-password/{id}', [UserController::class, 'resetPassword'])->middleware('auth:sanctum')->middleware('role:Admin');
 
 //register, login, logout
 Route::post('/register', [AuthController::class, 'register']);
