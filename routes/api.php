@@ -80,15 +80,15 @@ Route::get('/jurnal-minggu', [JurnalKasController::class, 'LaporanMingguan']);
 Route::get('/infaq', [InfaqController::class, 'index']);
 Route::get('/infaq/{id}', [InfaqController::class, 'show']);
 Route::post('/infaq', [InfaqController::class, 'store']);
-Route::post('/terima-infaq/{id}', [InfaqController::class, 'terimaInfaq']);
+Route::post('/terima-infaq/{id}', [InfaqController::class, 'terimaInfaq'])->middleware('auth:sanctum')->middleware('role:Bendahara');
 Route::post('/tolak-infaq/{id}', [InfaqController::class, 'tolakInfaq'])->middleware('auth:sanctum')->middleware('role:Bendahara');
 
 //crud target infaq api json
 Route::get('/target-infaq', [TargetInfaqController::class, 'index']);
 Route::get('/target-infaq/{id}', [TargetInfaqController::class, 'show']);
-Route::post('/target-infaq', [TargetInfaqController::class, 'store']);
-Route::put('/target-infaq/{id}', [TargetInfaqController::class, 'update']);
-Route::delete('/target-infaq/{id}', [TargetInfaqController::class, 'destroy']);
+Route::post('/target-infaq', [TargetInfaqController::class, 'store'])->middleware('auth:sanctum')->middleware('role:Bendahara');
+Route::put('/target-infaq/{id}', [TargetInfaqController::class, 'update'])->middleware('auth:sanctum')->middleware('role:Bendahara');
+Route::delete('/target-infaq/{id}', [TargetInfaqController::class, 'destroy'])->middleware('auth:sanctum')->middleware('role:Bendahara');
 
 //crud struktur pengurus api json
 Route::get('/pengurus', [StrukturPengurusController::class, 'index']);
