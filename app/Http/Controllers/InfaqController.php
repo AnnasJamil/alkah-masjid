@@ -157,6 +157,15 @@ class InfaqController
             'status' => 'Ditolak'
         ]);
 
+        //log aktivitas
+        if (auth()->check()) {
+            LogAktivitas::create([
+                'user_id' => auth()->id(),
+                'aktivitas' => 'Menolak Infaq sebesar ' . $infaq->nominal,
+                'waktu' => now(),
+            ]);
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Infaq berhasil ditolak',
@@ -185,6 +194,15 @@ class InfaqController
         }
 
         $infaq->delete();
+
+        //log aktivitas
+        if (auth()->check()) {
+            LogAktivitas::create([
+                'user_id' => auth()->id(),
+                'aktivitas' => 'Menghapus Infaq sebesar ' . $infaq->nominal,
+                'waktu' => now(),
+            ]);
+        }
 
         return response()->json([
             'success' => true,

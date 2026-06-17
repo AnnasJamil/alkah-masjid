@@ -133,6 +133,15 @@ class TargetInfaqController
         'status' => 'Aktif',
     ]);
 
+    //log aktivitas
+    if (auth()->check()) {
+        LogAktivitas::create([
+            'user_id' => auth()->id(),
+            'aktivitas' => 'Membuat Target Infaq dengan nama ' . $targetInfaq->nama_target,
+            'waktu' => now(),
+        ]);
+    }
+
     return response()->json([
         'success' => true,
         'message' => 'Target Infaq berhasil dibuat',
@@ -160,6 +169,16 @@ class TargetInfaqController
         'nama_target' => $request->nama_target,
         'target_dana' => $request->target_dana,
     ]);
+
+    //log aktivitas
+    if (auth()->check()) {
+        LogAktivitas::create([
+            'user_id' => auth()->id(),
+            'aktivitas' => 'Memperbarui Target Infaq dengan nama ' . $targetInfaq->nama_target . ' menjadi ' . $request->nama_target
+                . ' dan target dana dari ' . $targetInfaq->target_dana . ' menjadi ' . $request->target_dana,
+            'waktu' => now(),
+        ]);
+    }
 
     return response()->json([
         'success' => true,
@@ -192,6 +211,15 @@ class TargetInfaqController
     }
 
     $targetInfaq->delete();
+
+    //log aktivitas
+    if (auth()->check()) {
+        LogAktivitas::create([
+            'user_id' => auth()->id(),
+            'aktivitas' => 'Menghapus Target Infaq dengan nama ' . $targetInfaq->nama_target,
+            'waktu' => now(),
+        ]);
+    }
 
     return response()->json([
         'success' => true,
