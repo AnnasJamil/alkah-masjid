@@ -9,6 +9,7 @@ class Infaq extends Model
 {
     //
     protected $fillable = [
+        'target_infaq_id',
         'nama_penginfaq',
         'nominal',
         'tujuan_infaq',
@@ -20,5 +21,10 @@ class Infaq extends Model
     //relasi ke jurnal kas
     public function jurnalKas() {
         return $this->hasOne(JurnalKas::class);
+    }
+
+    //relasi ke target infaq
+    public function targetInfaq() {
+        return $this->belongsTo(TargetInfaq::class, 'target_infaq_id');
     }
 }

@@ -16,7 +16,7 @@ class InfaqController
         return response()->json([
             'success' => true,
             'message' => 'List Infaq',
-            'data' => Infaq::all()
+            'data' => Infaq::with('targetInfaq')->get()
         ], 200);
     }
 
@@ -34,7 +34,7 @@ class InfaqController
         return response()->json([
             'success' => true,
             'message' => 'Detail Infaq',
-            'data' => $infaq
+            'data' => Infaq::with('targetInfaq')->find($id)
         ], 200);
     }
 
@@ -42,7 +42,8 @@ class InfaqController
     {
         $request->validate([
             'nama_penginfaq' => 'nullable|string|max:255',
-            'tujuan_infaq' => 'required|string|max:255',
+            'tujuan_infaq' => 'required_without:target_infaq_id|string',
+            'target_infaq_id' => 'required_without:tujuan_infaq|exists:target_infaqs,id',
             'nominal' => 'required|numeric|min:1000',
             'bukti_infaq' => 'required|image|mimes:jpg,jpeg,png|max:2048',
         ]);
@@ -52,6 +53,7 @@ class InfaqController
 
         $infaq = Infaq::create([
             'nama_penginfaq' => $request->nama_penginfaq ?: 'Hamba Allah',
+            'target_infaq_id' => $request->target_infaq_id,
             'tujuan_infaq' => $request->tujuan_infaq,
             'nominal' => $request->nominal,
             'bukti_infaq' => $buktiInfaq,
@@ -101,6 +103,10 @@ class InfaqController
         'status' => 'Diterima'
     ]);
 
+    $tujuan = $infaq->target_infaq_id
+    ? $infaq->targetInfaq->nama_target
+    : $infaq->tujuan_infaq;
+
     JurnalKas::create([
         'pembayaran_alkah_id' => null,
         'infaq_id' => $infaq->id,
@@ -108,7 +114,7 @@ class InfaqController
         'tanggal' => now(),
         'keterangan' =>
             'Infaq ' .
-            $infaq->tujuan_infaq .
+            $tujuan .
             ' dari ' .
             $infaq->nama_penginfaq,
         'nominal' => $nominalFinal,

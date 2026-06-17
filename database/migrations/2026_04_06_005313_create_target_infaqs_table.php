@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('alkahs', function (Blueprint $table) {
+        Schema::create('target_infaqs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('blok_alkah_id')->constrained('blok_alkahs')->onDelete('cascade');
-            $table->char('kode_alkah', 3)->unique();
-            $table->decimal('harga', 10, 2);
-            $table->enum('status', ['Tersedia','Sedang Dipesan', 'Terisi', 'Dipesan'])->default('Tersedia');
+            $table->string('nama_target');
+            $table->decimal('target_dana', 15, 2);
+            $table->enum('status', ['Aktif', 'Selesai'])->default('Aktif');
             $table->timestamps();
         });
     }
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('alkahs');
+        Schema::dropIfExists('target_infaqs');
     }
 };

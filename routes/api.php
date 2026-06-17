@@ -15,6 +15,7 @@ use App\Http\Controllers\LogAktivitasController;
 use App\Http\Controllers\ProfiljamaahController;
 use App\Http\Controllers\DataAlmarhumController;
 use App\Http\Controllers\KajianRutinController;
+use App\Http\Controllers\TargetInfaqController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -79,8 +80,15 @@ Route::get('/jurnal-minggu', [JurnalKasController::class, 'LaporanMingguan']);
 Route::get('/infaq', [InfaqController::class, 'index']);
 Route::get('/infaq/{id}', [InfaqController::class, 'show']);
 Route::post('/infaq', [InfaqController::class, 'store']);
-Route::post('/terima-infaq/{id}', [InfaqController::class, 'terimaInfaq'])->middleware('auth:sanctum')->middleware('role:Bendahara');
+Route::post('/terima-infaq/{id}', [InfaqController::class, 'terimaInfaq']);
 Route::post('/tolak-infaq/{id}', [InfaqController::class, 'tolakInfaq'])->middleware('auth:sanctum')->middleware('role:Bendahara');
+
+//crud target infaq api json
+Route::get('/target-infaq', [TargetInfaqController::class, 'index']);
+Route::get('/target-infaq/{id}', [TargetInfaqController::class, 'show']);
+Route::post('/target-infaq', [TargetInfaqController::class, 'store']);
+Route::put('/target-infaq/{id}', [TargetInfaqController::class, 'update']);
+Route::delete('/target-infaq/{id}', [TargetInfaqController::class, 'destroy']);
 
 //crud struktur pengurus api json
 Route::get('/pengurus', [StrukturPengurusController::class, 'index']);
