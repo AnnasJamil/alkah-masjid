@@ -68,28 +68,36 @@ use Illuminate\Support\Facades\Log;
  //rest password dengan email otp
     public function resetPassword(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email|exists:users,email',
-        ]);
-        $user = User::where('email', $request->email)->first();
-        //generate kode OTP ke email user
-        $otp = rand(100000, 999999);
-        //jika genereate OTP, maka hapus OTP yang lama untuk email tersebut
-        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
-        DB::table('password_reset_tokens')->insert([
+    $request->validate([
+        'email' => 'required|email|exists:users,email',
+    ]);
+
+    $otp = rand(100000, 999999);
+
+    DB::table('password_reset_tokens')
+        ->where('email', $request->email)
+        ->delete();
+
+    DB::table('password_reset_tokens')
+        ->insert([
             'email' => $request->email,
             'token' => $otp,
             'created_at' => now(),
         ]);
 
-        //simpan ke log
-        Log::info('OTP reset password, [email: ' . $request->email . ', otp: ' . $otp . ']');
-        return response()->json([
-            'success' => true,
-            'message' => 'Kode OTP telah dikirim ke email Anda',
-            'otp' => $otp, //untuk testing, seharusnya tidak dikirim ke client
-        ], 200);
-     }
+    Mail::raw(
+        'Kode OTP reset password Anda adalah: ' . $otp,
+        function ($message) use ($request) {
+            $message->to($request->email)
+                    ->subject('Reset Password Masjid Alkah');
+        }
+    );
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Kode OTP telah dikirim ke email Anda. Silakan cek Inbox dan folder spam.'
+    ], 200);
+    }
 
     //update password dengan otp
     public function updatePassword(Request $request)
