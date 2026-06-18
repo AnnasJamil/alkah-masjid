@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('target_infaq_id')->nullable()->constrained('target_infaqs')->onDelete('set null');
             $table->string('nama_penginfaq')->default('Hamba Allah');
             $table->decimal('nominal', 10, 2);
-            $table->enum('tujuan_infaq', ['Kas & Operasional Masjid', 'Kegiatan Sosial & Santunan', 'Kegiatan TPA/Pendidikan'])->nullable();
+            $table->string('tujuan_infaq')->nullable();
             $table->string('bukti_infaq');
             $table->enum('status', ['Menunggu Diterima', 'Diterima', 'Ditolak'])->default('Menunggu Diterima');
             $table->datetime('tanggal_infaq');

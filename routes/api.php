@@ -16,6 +16,7 @@ use App\Http\Controllers\ProfiljamaahController;
 use App\Http\Controllers\DataAlmarhumController;
 use App\Http\Controllers\KajianRutinController;
 use App\Http\Controllers\TargetInfaqController;
+use App\Http\Controllers\NotifikasiController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -119,6 +120,11 @@ Route::get('/kajian/{id}', [KajianRutinController::class, 'show']);
 Route::post('/kajian', [KajianRutinController::class, 'store'])->middleware('auth:sanctum')->middleware('role:Admin');
 Route::put('/kajian/{id}', [KajianRutinController::class, 'update'])->middleware('auth:sanctum')->middleware('role:Admin');
 Route::delete('/kajian/{id}', [KajianRutinController::class, 'destroy'])->middleware('auth:sanctum')->middleware('role:Admin');
+
+//notifikasi api json
+Route::get('/notifikasi', [NotifikasiController::class, 'index'])->middleware('auth:sanctum');
+Route::post('/notifikasi/{id}/read', [NotifikasiController::class, 'markAsRead'])->middleware('auth:sanctum');
+Route::post('/notifikasi/read-all', [NotifikasiController::class, 'markAllAsRead'])->middleware('auth:sanctum');
 
 //log aktivitas api json
 Route::get('/log', [LogAktivitasController::class, 'index']);

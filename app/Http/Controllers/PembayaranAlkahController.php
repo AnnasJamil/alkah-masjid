@@ -11,6 +11,11 @@ use App\Models\JurnalKas;
 use App\Models\Alkah;
 use App\Models\BlokAlkah;
 use App\Models\LogAktivitas;
+use App\Models\User;
+use App\Notifications\BuktiPembayaranDiuploadNotification;
+use App\Notifications\BuktiPembayaranPerbaikiNotification;
+use App\Notifications\PembayaranAlkahDiverifikasiNotification;
+use Illuminate\Support\Facades\Notification;
 
 class PembayaranAlkahController
 {
@@ -71,6 +76,12 @@ class PembayaranAlkahController
         'catatan' => null
     ]);
 
+    //kirim notifikasi ke pengelola alkah
+    $pengelola = User::where('role', 'Pengelola Alkah')->get();
+    foreach ($pengelola as $pengelola) {
+        $pengelola->notify(new BuktiPembayaranDiuploadNotification($pembayaran) );
+    }
+
     $alkah = Alkah::find($pembayaran->transaksiAlkah->alkah_id);
     //log aktivitas upload bukti pembayaran
     LogAktivitas::create([
@@ -107,6 +118,10 @@ class PembayaranAlkahController
         'status' => 'Menunggu Pembayaran',
         'catatan' => $request->catatan
     ]);
+
+    //notifikasi
+    $pembayaran->transaksiAlkah->user->notify( new BuktiPembayaranPerbaikiNotification($pembayaran)
+    );
 
     $alkah = Alkah::find($pembayaran->transaksiAlkah->alkah_id);
     //log aktivitas perbaiki bukti pembayaran
@@ -147,6 +162,9 @@ class PembayaranAlkahController
         'status' => 'Lunas'
     ]);
 
+    $transaksi->user->notify(new PembayaranAlkahDiverifikasiNotification($pembayaran)
+    );
+
     $alkah = $transaksi->alkah;
 
     $alkah->update([
@@ -176,7 +194,7 @@ class PembayaranAlkahController
             'Memverifikasi pembayaran untuk transaksi alkah ' . $alkah->kode_alkah,
         'waktu' => now()
     ]);
-    
+
     return response()->json([
         'success' => true,
         'message' => 'Pembayaran berhasil diverifikasi',

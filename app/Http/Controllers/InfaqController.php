@@ -8,6 +8,8 @@ use App\Models\JurnalKas;
 use App\Models\LogAktivitas;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Models\User;
+use App\Notifications\InfaqBaruNotification;
 
 class InfaqController
 {
@@ -42,7 +44,7 @@ class InfaqController
     {
         $request->validate([
             'nama_penginfaq' => 'nullable|string|max:255',
-            'tujuan_infaq' => 'required_without:target_infaq_id|string',
+            'tujuan_infaq' => 'nullable|string',
             'target_infaq_id' => 'required_without:tujuan_infaq|exists:target_infaqs,id',
             'nominal' => 'required|numeric|min:1000',
             'bukti_infaq' => 'required|image|mimes:jpg,jpeg,png|max:2048',
@@ -60,6 +62,12 @@ class InfaqController
             'status' => 'Menunggu Diterima',
             'tanggal_infaq' => now(),
         ]);
+
+          // Kirim notifikasi ke semua Bendahara
+         $bendahara = User::where('role', 'Bendahara')->get();
+        foreach ($bendahara as $user) {
+        $user->notify(new InfaqBaruNotification($infaq));
+        }
 
         return response()->json([
             'success' => true,

@@ -11,6 +11,11 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use App\Models\LogAktivitas;
 use Illuminate\Support\Facades\Auth;
+use App\Notifications\PengajuanAlkahNotification;
+use App\Notifications\PengajuanAlkahDiterimaNotification;
+use App\Notifications\PengajuanAlkahDitolakNotification;
+use App\Models\User;
+use Illuminate\Support\Facades\Notification;
 
 class TransaksiAlkahController
 {
@@ -97,8 +102,12 @@ class TransaksiAlkahController
 
         // CEK DUPLIKAT ALKAH
         $cekDuplikat = TransaksiAlkah::where('user_id', auth()->id())
-            ->where('alkah_id', $request->alkah_id)
-            ->exists();
+        ->where('alkah_id', $request->alkah_id)
+        ->whereIn('status', [
+        'Menunggu Verifikasi',
+        'Menunggu Pembayaran',
+        'Lunas'  ])
+        ->exists();
 
         if ($cekDuplikat) {
             return response()->json([
@@ -124,6 +133,12 @@ class TransaksiAlkahController
             'status' => 'Menunggu Verifikasi',
             'alasan_penolakan' => null,
         ]);
+
+        // NOTIFIKASI ke Pengelola Alkah
+        $pengelolaAlkah = User::where('role', 'Pengelola Alkah')->get();
+        foreach ($pengelolaAlkah as $pengelola) {
+            $pengelola->notify(new PengajuanAlkahNotification($transaksi));
+        }
 
         // UPDATE STATUS ALKAH
         $alkah->update(['status' => 'Sedang Dipesan']);
@@ -166,6 +181,9 @@ class TransaksiAlkahController
             'waktu' => now(),
         ]);
 
+        // NOTIFIKASI ke Jamaah
+        $transaksi->user->notify(new PengajuanAlkahDiterimaNotification($transaksi));
+
         return response()->json([
             'success' => true,
             'message' => 'Pengajuan diterima'
@@ -200,6 +218,9 @@ class TransaksiAlkahController
             'aktivitas' => 'Menolak pengajuan alkah ' . $alkah->kode_alkah,
             'waktu' => now(),
         ]);
+
+        // NOTIFIKASI ke Jamaah
+        $transaksi->user->notify(new PengajuanAlkahDitolakNotification($transaksi));
 
         return response()->json([
             'success' => true,
